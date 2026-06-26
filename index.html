@@ -39,7 +39,7 @@
       }
       50% {
         text-shadow: 0 0 20px rgba(6, 182, 212, 0.9), 0 0 35px rgba(6, 182, 212, 0.7);
-        transform: scale(1.03);
+        transform: scale(1.02);
       }
     }
     .neon-glow-title {
@@ -87,7 +87,7 @@
             <i class="fas fa-soap text-xl"></i>
           </div>
           <div>
-            <h2 id="sidebarShopTitle" class="font-black text-base tracking-tight text-brand-600 dark:text-brand-500 neon-glow-title">C&G Laundry</h2>
+            <h2 id="sidebarShopTitle" class="font-black text-base tracking-tight text-brand-600 dark:text-brand-500 neon-glow-title">Clean & Glow</h2>
             <span class="text-[10px] text-slate-400 font-semibold uppercase">Panel Kasir Pro</span>
           </div>
         </div>
@@ -131,7 +131,7 @@
             <i class="fas fa-soap text-lg text-brand-500"></i>
           </div>
           <div>
-            <h1 id="shopTitle" class="text-xl font-extrabold text-slate-800 dark:text-white">Clean & Glow Laundry</h1>
+            <h1 id="shopTitle" class="text-xl font-extrabold text-slate-800 dark:text-white font-serif">Clean & Glow Laundry</h1>
             <p id="shopAddress" class="text-xs text-slate-500 dark:text-slate-400">Jl. Sukacita No. 12, Samarinda</p>
           </div>
         </div>
@@ -144,7 +144,7 @@
           </div>
           <div class="bg-brand-500/10 text-brand-600 dark:text-brand-400 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
             <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-            Sistem Aktif
+            Sistem Sinkron
           </div>
         </div>
       </header>
@@ -199,7 +199,6 @@
 
           <!-- Quick Actions & Alur Kerja -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Form Mini Cuci Kilat -->
             <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 lg:col-span-2 space-y-4">
               <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-magic text-brand-500"></i> Alur Kerja Sistem Laundry</h3>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center mt-2">
@@ -232,15 +231,15 @@
               <div class="space-y-3 text-sm">
                 <div class="flex gap-3">
                   <i class="fas fa-print text-slate-400 mt-1"></i>
-                  <p class="text-xs">Pastikan printer thermal 58mm Anda sudah terhubung ke PC/Android sebelum menekan tombol <strong>Cetak Struk</strong>.</p>
+                  <p class="text-xs">Pastikan printer thermal 58mm Anda sudah terhubung sebelum menekan tombol <strong>Cetak Struk</strong>.</p>
                 </div>
                 <div class="flex gap-3">
                   <i class="fab fa-whatsapp text-emerald-500 mt-1"></i>
-                  <p class="text-xs">Nomor WhatsApp pelanggan diinput menggunakan format standar Indonesia (misal: <code>08123456789</code> atau <code>628123456789</code>).</p>
+                  <p class="text-xs">Nomor WhatsApp pelanggan diinput menggunakan format standar (contoh: <code>081234567890</code>).</p>
                 </div>
                 <div class="flex gap-3">
                   <i class="fas fa-database text-blue-400 mt-1"></i>
-                  <p class="text-xs">Sistem database tersinkronisasi asinkronus ke Google Sheets milik akun Anda secara aman.</p>
+                  <p class="text-xs">Sistem database otomatis tersinkronisasi dua arah langsung ke Google Spreadsheet Anda secara aman.</p>
                 </div>
               </div>
             </div>
@@ -256,7 +255,7 @@
             </h3>
             
             <form id="laundryForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
-              <input type="hidden" id="form-id"> <!-- Menyimpan ID untuk Edit Mode -->
+              <input type="hidden" id="form-id">
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Nama Pelanggan -->
@@ -279,21 +278,21 @@
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Jenis Layanan / Paket Dinamis dari State -->
+                <!-- Jenis Layanan / Paket -->
                 <div>
                   <label class="block text-sm font-bold text-slate-500 mb-2">Paket Layanan <span class="text-red-500">*</span></label>
-                  <select id="form-layanan" onchange="calculatePrice()" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                  <select id="form-layanan" onchange="calculatePrice()" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all font-semibold">
                     <!-- Opsi Layanan Dirender Dinamis dari Database Google Sheets -->
                   </select>
                 </div>
 
-                <!-- Berat atau Unit -->
+                <!-- Berat atau Unit (DENGAN INTEGRASI ADJUSTMENT BUTTONS) -->
                 <div>
                   <label class="block text-sm font-bold text-slate-500 mb-2">Berat / Qty (Kg/Unit) <span class="text-red-500">*</span></label>
-                  <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fas fa-weight-hanging"></i></span>
-                    <input type="number" step="0.1" id="form-berat" required oninput="calculatePrice()" value="1.0" class="w-full pl-10 pr-12 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
-                    <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-sm font-bold text-slate-400">Kg/Pcs</span>
+                  <div class="flex items-center">
+                    <button type="button" onclick="adjustWeight(-0.5)" class="px-4 py-3 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-l-xl border border-r-0 border-slate-300 dark:border-slate-600 focus:outline-none font-bold transition-all">-</button>
+                    <input type="number" step="0.1" min="0.1" id="form-berat" required oninput="calculatePrice()" value="1.0" class="w-full text-center py-3 border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all font-black text-lg">
+                    <button type="button" onclick="adjustWeight(0.5)" class="px-4 py-3 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-r-xl border border-l-0 border-slate-300 dark:border-slate-600 focus:outline-none font-bold transition-all">+</button>
                   </div>
                 </div>
 
@@ -302,47 +301,57 @@
                   <label class="block text-sm font-bold text-slate-500 mb-2">Total Biaya</label>
                   <div class="relative">
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-bold">Rp</span>
-                    <input type="number" id="form-total" readonly class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 font-extrabold text-brand-600 dark:text-brand-400 outline-none cursor-not-allowed">
+                    <input type="number" id="form-total" readonly class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 font-black text-brand-600 dark:text-brand-400 outline-none cursor-not-allowed text-lg">
                   </div>
                 </div>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Pembayaran / DP -->
-                <div>
-                  <label class="block text-sm font-bold text-slate-500 mb-2">Jumlah Bayar / DP</label>
-                  <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-bold">Rp</span>
-                    <input type="number" id="form-dp" oninput="validatePaymentStatus()" value="0" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                <!-- Pembayaran / DP (DENGAN TOMBOL PINTAS MAJU) -->
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-bold text-slate-500 mb-2">Jumlah Bayar / DP (Rp)</label>
+                  <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-1">
+                      <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-bold">Rp</span>
+                      <input type="number" id="form-dp" oninput="validatePaymentStatus()" value="0" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all font-bold text-lg">
+                    </div>
+                    <!-- Quick Payment Action Chips -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto py-1">
+                      <button type="button" onclick="setQuickPayment('nol')" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-xs font-bold rounded-xl transition-all text-slate-600 dark:text-slate-300 whitespace-nowrap">Belum Bayar</button>
+                      <button type="button" onclick="setQuickPayment('setengah')" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-xs font-bold rounded-xl transition-all text-slate-600 dark:text-slate-300 whitespace-nowrap">DP 50%</button>
+                      <button type="button" onclick="setQuickPayment('lunas')" class="px-3 py-2 bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold rounded-xl transition-all whitespace-nowrap shadow-sm">Lunas</button>
+                    </div>
                   </div>
                 </div>
 
-                <!-- Status Pembayaran -->
+                <!-- Status Pembayaran (Otomatis & Terkunci untuk menghindari kelalaian kasir) -->
                 <div>
                   <label class="block text-sm font-bold text-slate-500 mb-2">Status Pembayaran</label>
-                  <select id="form-status-bayar" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                  <select id="form-status-bayar" disabled class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-extrabold outline-none cursor-not-allowed">
                     <option value="Belum Lunas">Belum Lunas</option>
                     <option value="DP (Uang Muka)">DP (Uang Muka)</option>
                     <option value="Lunas">Lunas</option>
                   </select>
                 </div>
+              </div>
 
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Status Proses Cucian -->
                 <div>
                   <label class="block text-sm font-bold text-slate-500 mb-2">Status Pengerjaan</label>
-                  <select id="form-status-proses" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                  <select id="form-status-proses" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all font-semibold">
                     <option value="Antrean">Antrean</option>
                     <option value="Proses">Proses Cuci</option>
                     <option value="Selesai">Selesai</option>
                     <option value="Diambil">Sudah Diambil</option>
                   </select>
                 </div>
-              </div>
 
-              <!-- Catatan Tambahan -->
-              <div>
-                <label class="block text-sm font-bold text-slate-500 mb-2">Catatan Khusus (Opsional)</label>
-                <textarea id="form-catatan" rows="2" placeholder="Contoh: baju putih pisahkan, luntur, minta setrika pewangi extra" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all"></textarea>
+                <!-- Catatan Tambahan -->
+                <div>
+                  <label class="block text-sm font-bold text-slate-500 mb-2">Catatan Khusus (Opsional)</label>
+                  <input type="text" id="form-catatan" placeholder="Contoh: baju putih dipisah, setrika pewangi extra" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                </div>
               </div>
 
               <!-- Tombol Simpan -->
@@ -364,7 +373,6 @@
           
           <!-- Pencarian & Filter -->
           <div class="bg-white dark:bg-slate-800 p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 flex flex-col md:flex-row gap-4 items-center justify-between">
-            <!-- Pencarian -->
             <div class="relative w-full md:w-96">
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fas fa-search"></i></span>
               <input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="Cari nama pelanggan, nomor nota, atau HP..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition-all">
@@ -397,7 +405,6 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-sm" id="transaksiTableBody">
-                  <!-- Generated dynamically via JS -->
                   <tr>
                     <td colspan="8" class="p-8 text-center text-slate-400">Sedang memuat data transaksi...</td>
                   </tr>
@@ -411,21 +418,19 @@
         <!-- ==================== TAB 4: PENGATURAN (ADMIN ONLY SYSTEM) ==================== -->
         <div id="tab-pengaturan" class="tab-content hidden">
           
-          <!-- GERBANG PENGUNCI PIN ADMIN (Bila belum masuk) -->
+          <!-- GERBANG PENGUNCI PIN ADMIN -->
           <div id="adminPinGate" class="max-w-md mx-auto bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700 text-center space-y-6">
-            <div class="inline-flex items-center justify-center bg-amber-50 dark:bg-amber-950/20 p-4 rounded-full text-amber-500">
+            <div class="inline-flex items-center justify-center bg-amber-50 dark:bg-amber-950/20 p-4 rounded-full text-amber-500 animate-pulse">
               <i class="fas fa-user-shield text-4xl"></i>
             </div>
             <div>
               <h3 class="text-xl font-bold">Verifikasi Hak Akses Admin</h3>
-              <p class="text-xs text-slate-400 mt-1">Masukkan PIN Admin untuk mengakses konfigurasi sensitif, tarif layanan & penggantian sandi.</p>
+              <p class="text-xs text-slate-400 mt-1">Masukkan PIN Admin untuk mengakses konfigurasi sensitif, tarif layanan & logo toko.</p>
             </div>
 
-            <!-- Input PIN Kasir dengan Mata Elang Toggle -->
             <div class="relative">
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fas fa-key"></i></span>
-              <input type="password" id="adminPinInput" maxlength="6" placeholder="Masukkan PIN Admin..." class="w-full pl-10 pr-12 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-brand-500 text-center tracking-widest font-black text-lg outline-none transition-all">
-              <!-- Mata Elang Button -->
+              <input type="password" id="adminPinInput" maxlength="6" placeholder="Masukkan PIN Admin..." class="w-full pl-10 pr-12 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-brand-500 text-center tracking-widest font-black text-lg outline-none transition-all" onkeydown="if(event.key === 'Enter') verifyAdminAccess()">
               <button type="button" onclick="toggleAdminPinEye()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-brand-500 outline-none">
                 <i id="adminEyeIcon" class="fas fa-eye"></i>
               </button>
@@ -436,9 +441,9 @@
             </button>
           </div>
 
-          <!-- PANEL PENGATURAN UTAMA (Hanya muncul jika lolos PIN) -->
+          <!-- PANEL PENGATURAN UTAMA -->
           <div id="adminPanelContent" class="hidden max-w-4xl mx-auto space-y-8">
-            <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50">
+            <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
               <div class="flex items-center gap-3">
                 <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span class="text-sm font-bold text-slate-500 dark:text-slate-300">Mode Admin Terverifikasi</span>
@@ -488,7 +493,7 @@
                       </div>
                     </div>
 
-                    <!-- PENGATURAN PIN BARU DENGAN MATA ELANG -->
+                    <!-- PENGATURAN PIN BARU -->
                     <div class="border-t pt-4 border-slate-100 dark:border-slate-700">
                       <h4 class="text-xs font-black text-amber-500 uppercase tracking-wider mb-3">Keamanan Akses</h4>
                       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -514,7 +519,7 @@
                 </div>
               </div>
 
-              <!-- Kanan: Atur Harga Paket Layanan -->
+              <!-- Rencana Harga Layanan -->
               <div class="space-y-6">
                 <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/80">
                   <div class="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-slate-700 mb-4">
@@ -522,9 +527,8 @@
                     <button onclick="addLayananRow()" class="p-1.5 bg-brand-500 text-white rounded-lg text-xs hover:bg-brand-600 transition-all"><i class="fas fa-plus"></i> Paket</button>
                   </div>
                   
-                  <!-- Form Daftar Harga Paket -->
                   <div id="layananFormContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-                    <!-- Dynamic Rows populated in JS -->
+                    <!-- Dynamic Rows -->
                   </div>
                   
                   <div class="pt-4 border-t border-slate-100 dark:border-slate-700">
@@ -560,14 +564,12 @@
         <button onclick="closeReceiptPreview()" class="text-slate-400 hover:text-red-500"><i class="fas fa-times-circle text-lg"></i></button>
       </div>
       
-      <!-- Kertas Struk 58mm -->
       <div class="flex-1 overflow-y-auto bg-slate-100 p-4 rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 shadow-inner text-slate-900 font-mono text-[11px] mb-4">
         <div class="bg-white p-4 shadow-sm rounded border border-slate-200 text-black leading-relaxed" id="receiptModalContent">
-          <!-- Konten Struk Dinamis -->
+          <!-- Konten Struk -->
         </div>
       </div>
       
-      <!-- Tombol Aksi Cetak & Batal -->
       <div class="flex gap-3">
         <button onclick="closeReceiptPreview()" class="w-1/2 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-xs hover:bg-slate-200 dark:hover:bg-slate-600 transition-all text-center">
           Tutup
@@ -580,13 +582,12 @@
   </div>
 
 
-  <!-- ==================== AREA STRUK THERMAL (TERSEMBUNYI SAAT SCREEN MODE) ==================== -->
+  <!-- AREA STRUK TERSEMBUNYI -->
   <div id="thermalReceipt" class="hidden"></div>
 
 
   <!-- ==================== JAVASCRIPT LOGIC SYSTEM ==================== -->
   <script>
-    // URL GOOGLE APPS SCRIPT WEB APP (Target Database Anda)
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxgScSqLDC0gqGpPY1im61W5X0cBIGOWllGQFsyAL1jE_VDsAieGyD_ioNOljUrfg/exec";
 
     let appState = {
@@ -607,20 +608,47 @@
       activePrintId: null
     };
 
-    // Fungsi Inisialisasi Utama
     window.onload = function() {
-      // Deteksi ekosistem Google Apps Script bawaan (iframe)
       appState.isGoogleAppsScript = (typeof google !== 'undefined' && google.script && google.script.run);
-      
       initClock();
       loadThemeFromLocalStorage();
       loadApplicationData();
     };
 
-    // UNIFIED BACKEND SINKRONISASI (Menghubungkan GAS_URL secara asinkron atau google.script.run)
+    // FUNGSI NAVIGASI TAB UTAMA (MENANGANI TAMPILAN ANTARMUKA)
+    function switchTab(tabId) {
+      // Sembunyikan semua konten tab
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      // Tampilkan tab yang dipilih
+      const targetTab = document.getElementById('tab-' + tabId);
+      if (targetTab) {
+        targetTab.classList.remove('hidden');
+      }
+
+      // Perbarui style tombol navigasi aktif
+      const navButtons = ['dashboard', 'transaksi-baru', 'daftar-transaksi', 'pengaturan'];
+      navButtons.forEach(btn => {
+        const el = document.getElementById('nav-' + btn);
+        if (el) {
+          if (btn === tabId) {
+            el.className = "flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all text-brand-600 bg-brand-50 dark:text-brand-400 dark:bg-slate-700/50 min-w-max md:w-full";
+          } else {
+            el.className = "flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/30 min-w-max md:w-full";
+          }
+        }
+      });
+
+      appState.activeTab = tabId;
+
+      // Kunci kembali admin jika berpindah dari tab pengaturan
+      if (tabId !== 'pengaturan' && appState.isAdminAuthorized) {
+        lockAdminMode();
+      }
+    }
+
+    // PENGIRIM BACKEND AMAN UNTUK SPREADSHEET
     function callBackend(action, data, onSuccess, onFailure) {
       if (appState.isGoogleAppsScript) {
-        // Mode internal Google Apps Script
         if (action === 'getInitialData') {
           google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).getInitialData();
         } else if (action === 'saveTransaksi') {
@@ -631,14 +659,12 @@
           google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).updateSettings(data.config, data.layanan);
         }
       } else if (GAS_URL) {
-        // Mode Eksternal: HTTP Request ke URL Web App Anda dengan parameter aksi
         const fetchUrl = `${GAS_URL}?action=${action}`;
-        
         fetch(fetchUrl, {
           method: 'POST',
           mode: 'cors',
           headers: {
-            'Content-Type': 'text/plain;charset=utf-8' // Menghindari CORS Preflight Issues pada GAS
+            'Content-Type': 'text/plain;charset=utf-8'
           },
           body: JSON.stringify(data)
         })
@@ -654,16 +680,14 @@
           }
         })
         .catch(err => {
-          console.warn(`Akses GAS gagal, beralih ke Database Cadangan Lokal (Offline Mode). Detail: ${err.message}`);
+          console.warn(`Sinkronisasi Google Sheet dialihkan ke database lokal cadangan: ${err.message}`);
           fallbackLocalDB(action, data, onSuccess, onFailure);
         });
       } else {
-        // Mode Sandbox Offline Murni
         fallbackLocalDB(action, data, onSuccess, onFailure);
       }
     }
 
-    // DATABASE CADANGAN LOKAL (OFFLINE FIRST STORAGE)
     function fallbackLocalDB(action, data, onSuccess, onFailure) {
       const localT = localStorage.getItem('CG_Transaksi_2026');
       const localC = localStorage.getItem('CG_Config_2026');
@@ -695,18 +719,18 @@
         }
         localStorage.setItem('CG_Transaksi_2026', JSON.stringify(transactions));
         appState.transaksi = transactions;
-        onSuccess({ status: 'success', message: 'Tersimpan ke Penyimpanan Lokal' });
+        onSuccess({ status: 'success', message: 'Tersimpan lokal' });
       } else if (action === 'deleteTransaksi') {
         transactions = transactions.filter(t => t.ID_Transaksi !== data);
         localStorage.setItem('CG_Transaksi_2026', JSON.stringify(transactions));
         appState.transaksi = transactions;
-        onSuccess({ status: 'success', message: 'Dihapus dari Penyimpanan Lokal' });
+        onSuccess({ status: 'success', message: 'Dihapus lokal' });
       } else if (action === 'updateSettings') {
         localStorage.setItem('CG_Config_2026', JSON.stringify(data.config));
         localStorage.setItem('CG_Layanan_2026', JSON.stringify(data.layanan));
         appState.config = data.config;
         appState.layanan = data.layanan;
-        onSuccess({ status: 'success', message: 'Pengaturan tersimpan ke Penyimpanan Lokal' });
+        onSuccess({ status: 'success', message: 'Config tersimpan lokal' });
       }
     }
 
@@ -716,28 +740,13 @@
 
       setInterval(() => {
         const d = new Date();
-        const dayName = dayNames[d.getDay()];
-        const dayNum = d.getDate();
-        const monthName = monthNames[d.getMonth()];
-        const year = d.getFullYear();
-        
-        const hrs = String(d.getHours()).padStart(2, '0');
-        const mins = String(d.getMinutes()).padStart(2, '0');
-        const secs = String(d.getSeconds()).padStart(2, '0');
+        const dateStr = `${dayNames[d.getDay()]} , ${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+        const clockStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')} WIB`;
 
-        const dateStr = `${dayName}, ${dayNum} ${monthName} ${year}`;
-        const clockStr = `${hrs}:${mins}:${secs} WIB`;
-
-        // Update DOM Elements
-        const elDayDate = document.getElementById('liveDayDate');
-        const elClock = document.getElementById('liveClock');
-        const elMobileDate = document.getElementById('liveMobileDate');
-        const elMobileTime = document.getElementById('liveMobileTime');
-
-        if (elDayDate) elDayDate.innerText = dateStr;
-        if (elClock) elClock.innerText = clockStr;
-        if (elMobileDate) elMobileDate.innerText = dateStr;
-        if (elMobileTime) elMobileTime.innerText = `${hrs}:${mins}:${secs}`;
+        if (document.getElementById('liveDayDate')) document.getElementById('liveDayDate').innerText = dateStr;
+        if (document.getElementById('liveClock')) document.getElementById('liveClock').innerText = clockStr;
+        if (document.getElementById('liveMobileDate')) document.getElementById('liveMobileDate').innerText = dateStr;
+        if (document.getElementById('liveMobileTime')) document.getElementById('liveMobileTime').innerText = clockStr.split(' ')[0];
       }, 1000);
     }
 
@@ -751,7 +760,7 @@
         renderTransaksiTable();
         updateDashboardStats();
       }, function(err) {
-        showToast("Gagal memuat database cloud: " + err, "error");
+        showToast("Koneksi gagal, beralih ke local: " + err, "error");
       });
     }
 
@@ -761,7 +770,6 @@
       document.getElementById('sidebarShopTitle').innerText = shopTitle;
       document.getElementById('shopAddress').innerText = appState.config.Alamat;
 
-      // Pengaturan Form
       document.getElementById('cfg-nama').value = shopTitle;
       document.getElementById('cfg-telepon').value = appState.config.Telepon;
       document.getElementById('cfg-alamat').value = appState.config.Alamat;
@@ -783,6 +791,77 @@
       });
 
       calculatePrice();
+    }
+
+    // OTOMATISASI DAN RE-KALKULASI PROFESIONAL UNTUK BERAT & HARGA
+    function adjustWeight(val) {
+      const input = document.getElementById('form-berat');
+      let curVal = parseFloat(input.value || 0);
+      curVal = Math.max(0.1, curVal + val);
+      input.value = curVal.toFixed(1);
+      calculatePrice();
+    }
+
+    function calculatePrice() {
+      const selectedLayananName = document.getElementById('form-layanan').value;
+      const berat = parseFloat(document.getElementById('form-berat').value || 0.1);
+
+      const targetLayanan = appState.layanan.find(l => l.Nama_Layanan === selectedLayananName);
+      let tarif = targetLayanan ? Number(targetLayanan.Tarif) : 5000;
+
+      const total = Math.round(tarif * berat);
+      document.getElementById('form-total').value = total;
+
+      // Amankan input DP agar tidak melebihi total baru
+      const dpInput = document.getElementById('form-dp');
+      let dpVal = Number(dpInput.value || 0);
+      if (dpVal > total) {
+        dpInput.value = total;
+      }
+
+      validatePaymentStatus();
+    }
+
+    // TOMBOL PINTAS PEMBAYARAN KASIR
+    function setQuickPayment(type) {
+      const total = Number(document.getElementById('form-total').value || 0);
+      const dpInput = document.getElementById('form-dp');
+
+      if (type === 'nol') {
+        dpInput.value = 0;
+      } else if (type === 'setengah') {
+        dpInput.value = Math.round(total / 2);
+      } else if (type === 'lunas') {
+        dpInput.value = total;
+      }
+
+      validatePaymentStatus();
+    }
+
+    function validatePaymentStatus() {
+      const total = Number(document.getElementById('form-total').value || 0);
+      const dpInput = document.getElementById('form-dp');
+      let dp = Number(dpInput.value || 0);
+
+      // Proteksi agar DP tidak melampaui Total
+      if (dp > total) {
+        dp = total;
+        dpInput.value = total;
+      }
+      if (dp < 0) {
+        dp = 0;
+        dpInput.value = 0;
+      }
+
+      const selectStatus = document.getElementById('form-status-bayar');
+
+      if (dp >= total && total > 0) {
+        selectStatus.value = "Lunas";
+      } else if (dp > 0 && dp < total) {
+        selectStatus.value = "DP (Uang Muka)";
+      } else {
+        selectStatus.value = "Belum Lunas";
+      }
     }
 
     function updateLogoDisplays() {
@@ -827,11 +906,9 @@
           }
           
           ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, size, size);
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
-          
-          appState.config.Logo_Base64 = compressedBase64;
+          appState.config.Logo_Base64 = canvas.toDataURL('image/jpeg', 0.85);
           updateLogoDisplays();
-          showToast("Logo berhasil dimuat! Simpan perubahan untuk menyinkronkan.", "info");
+          showToast("Logo berhasil dimuat!", "info");
         };
         img.src = e.target.result;
       };
@@ -847,7 +924,7 @@
         document.getElementById('adminPinGate').classList.add('hidden');
         document.getElementById('adminPanelContent').classList.remove('hidden');
         document.getElementById('adminPinInput').value = '';
-        renderLayananRows(); // Load editor daftar harga paket
+        renderLayananRows();
         showToast("Hak akses Admin diberikan!", "success");
       } else {
         showToast("PIN Admin Salah!", "error");
@@ -858,7 +935,6 @@
       appState.isAdminAuthorized = false;
       document.getElementById('adminPanelContent').classList.add('hidden');
       document.getElementById('adminPinGate').classList.remove('hidden');
-      showToast("Sesi Admin Terkunci.", "info");
     }
 
     function toggleAdminPinEye() {
@@ -910,7 +986,7 @@
       const formattedId = 'L-' + String(nextIdNum).padStart(2, '0');
       appState.layanan.push({
         ID: formattedId,
-        Nama_Layanan: 'Paket Baru ' + nextIdNum,
+        Nama_Layanan: 'Paket Jasa Baru ' + nextIdNum,
         Tarif: 5000
       });
       renderLayananRows();
@@ -942,100 +1018,20 @@
       });
 
       if (!isValid) {
-        showToast("Nama paket layanan tidak boleh kosong!", "error");
+        showToast("Nama layanan tidak boleh kosong!", "error");
         return;
       }
 
       appState.layanan = updatedLayananList;
       renderLayananOptions();
 
-      // Sinkronisasi Database
-      showToast("Menyimpan perubahan layanan ke database...", "info");
+      showToast("Menyimpan layanan baru...", "info");
       callBackend('updateSettings', { config: appState.config, layanan: appState.layanan }, function(response) {
-        showToast("Daftar Paket Jasa Laundry diperbarui!", "success");
+        showToast("Tarif paket diperbarui!", "success");
         loadApplicationData();
       }, function(err) {
-        showToast("Gagal memperbarui daftar layanan: " + err, "error");
+        showToast("Gagal menyimpan ke spreadsheet: " + err, "error");
       });
-    }
-
-    function toggleDarkMode() {
-      const html = document.documentElement;
-      const themeIcon = document.getElementById('themeIcon');
-      
-      if (html.classList.contains('dark')) {
-        html.classList.remove('dark');
-        themeIcon.className = 'fas fa-moon text-lg';
-        localStorage.setItem('CG_Theme', 'light');
-      } else {
-        html.classList.add('dark');
-        themeIcon.className = 'fas fa-sun text-lg text-amber-400';
-        localStorage.setItem('CG_Theme', 'dark');
-      }
-    }
-
-    function loadThemeFromLocalStorage() {
-      const savedTheme = localStorage.getItem('CG_Theme');
-      const html = document.documentElement;
-      const themeIcon = document.getElementById('themeIcon');
-      
-      if (savedTheme === 'dark') {
-        html.classList.add('dark');
-        if (themeIcon) themeIcon.className = 'fas fa-sun text-lg text-amber-400';
-      } else {
-        html.classList.remove('dark');
-        if (themeIcon) themeIcon.className = 'fas fa-moon text-lg';
-      }
-    }
-
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      document.getElementById('tab-' + tabId).classList.remove('hidden');
-
-      const navButtons = ['dashboard', 'transaksi-baru', 'daftar-transaksi', 'pengaturan'];
-      navButtons.forEach(btn => {
-        const el = document.getElementById('nav-' + btn);
-        if (btn === tabId) {
-          el.className = "flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all text-brand-600 bg-brand-50 dark:text-brand-400 dark:bg-slate-700/50 min-w-max md:w-full";
-        } else {
-          el.className = "flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/30 min-w-max md:w-full";
-        }
-      });
-
-      appState.activeTab = tabId;
-
-      // Kunci kembali admin jika navigasi menjauh dari tab pengaturan
-      if (tabId !== 'pengaturan' && appState.isAdminAuthorized) {
-        lockAdminMode();
-      }
-    }
-
-    function calculatePrice() {
-      const selectedLayananName = document.getElementById('form-layanan').value;
-      const berat = Number(document.getElementById('form-berat').value || 0);
-
-      // Cari tarif berdasarkan paket yang dipilih di database layanan
-      const targetLayanan = appState.layanan.find(l => l.Nama_Layanan === selectedLayananName);
-      let tarif = targetLayanan ? Number(targetLayanan.Tarif) : 5000;
-
-      const total = Math.round(tarif * berat);
-      document.getElementById('form-total').value = total;
-
-      validatePaymentStatus();
-    }
-
-    function validatePaymentStatus() {
-      const total = Number(document.getElementById('form-total').value || 0);
-      const dp = Number(document.getElementById('form-dp').value || 0);
-      const selectStatus = document.getElementById('form-status-bayar');
-
-      if (dp >= total && total > 0) {
-        selectStatus.value = "Lunas";
-      } else if (dp > 0 && dp < total) {
-        selectStatus.value = "DP (Uang Muka)";
-      } else {
-        selectStatus.value = "Belum Lunas";
-      }
     }
 
     function handleFormSubmit(e) {
@@ -1058,7 +1054,7 @@
         Nama_Pelanggan: document.getElementById('form-pelanggan').value,
         No_WhatsApp: formatPhone(document.getElementById('form-whatsapp').value),
         Layanan: document.getElementById('form-layanan').value,
-        Berat_Unit: Number(document.getElementById('form-berat').value),
+        Berat_Unit: parseFloat(document.getElementById('form-berat').value || 1.0),
         Total_Harga: Number(document.getElementById('form-total').value),
         DP_Bayar: Number(document.getElementById('form-dp').value),
         Status_Bayar: document.getElementById('form-status-bayar').value,
@@ -1067,14 +1063,14 @@
         Tanggal_Selesai: document.getElementById('form-status-proses').value === 'Selesai' ? new Date().toISOString().substring(0, 10) : ''
       };
 
-      showToast("Menyimpan transaksi...", "info");
+      showToast("Mengirim data ke Spreadsheet...", "info");
       callBackend('saveTransaksi', transData, function(response) {
-        showToast("Transaksi Berhasil Disimpan!", "success");
+        showToast("Tersimpan di Google Sheets!", "success");
         loadApplicationData();
         cancelForm();
         switchTab('daftar-transaksi');
       }, function(err) {
-        showToast("Aksi Penyimpanan Gagal: " + err, "error");
+        showToast("Koneksi bermasalah: " + err, "error");
       });
     }
 
@@ -1084,6 +1080,7 @@
       document.getElementById('form-berat').value = "1.0";
       document.getElementById('form-total').value = "0";
       document.getElementById('form-dp').value = "0";
+      validatePaymentStatus();
     }
 
     function editTransaksi(id) {
@@ -1104,6 +1101,7 @@
       switchTab('transaksi-baru');
     }
 
+    // MENGUBAH STATUS PROGRESS CELERAT SECARA DINAMIS
     function updateSingleStatus(id, selectEl) {
       const item = appState.transaksi.find(t => t.ID_Transaksi === id);
       if (!item) return;
@@ -1113,7 +1111,7 @@
         item.Tanggal_Selesai = new Date().toISOString().substring(0, 10);
       }
 
-      showToast("Mengubah status pengerjaan...", "info");
+      showToast("Mengubah status...", "info");
       callBackend('saveTransaksi', item, function() {
         showToast("Status proses diperbarui!", "success");
         loadApplicationData();
@@ -1131,7 +1129,7 @@
         item.DP_Bayar = item.Total_Harga;
       }
 
-      showToast("Mengubah status pembayaran...", "info");
+      showToast("Mengubah status bayar...", "info");
       callBackend('saveTransaksi', item, function() {
         showToast("Status pembayaran diperbarui!", "success");
         loadApplicationData();
@@ -1144,7 +1142,7 @@
       const konfirmasi = confirm("Apakah Anda yakin ingin menghapus transaksi #" + id + "?");
       if (!konfirmasi) return;
 
-      showToast("Menghapus transaksi...", "info");
+      showToast("Menghapus data...", "info");
       callBackend('deleteTransaksi', id, function(response) {
         showToast("Berhasil dihapus!", "success");
         loadApplicationData();
@@ -1431,6 +1429,36 @@
       }, 300);
     }
 
+    // MODE TERANG & GELAP (DARK MODE ACCESSIBILITY)
+    function toggleDarkMode() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('themeIcon');
+      
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        if (themeIcon) themeIcon.className = 'fas fa-moon text-lg';
+        localStorage.setItem('CG_Theme', 'light');
+      } else {
+        html.classList.add('dark');
+        if (themeIcon) themeIcon.className = 'fas fa-sun text-lg text-amber-400';
+        localStorage.setItem('CG_Theme', 'dark');
+      }
+    }
+
+    function loadThemeFromLocalStorage() {
+      const savedTheme = localStorage.getItem('CG_Theme');
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('themeIcon');
+      
+      if (savedTheme === 'dark') {
+        html.classList.add('dark');
+        if (themeIcon) themeIcon.className = 'fas fa-sun text-lg text-amber-400';
+      } else {
+        html.classList.remove('dark');
+        if (themeIcon) themeIcon.className = 'fas fa-moon text-lg';
+      }
+    }
+
     function showToast(message, type = "success") {
       const toast = document.getElementById('toast');
       const toastMsg = document.getElementById('toastMsg');
@@ -1456,5 +1484,20 @@
       }, 3500);
     }
   </script>
+<script type="text/javascript">
+    // Menonaktifkan Klik Kanan
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    // Menonaktifkan Shortcut Keyboard (F12, Ctrl+Shift+I, Ctrl+U)
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C')) || 
+            (e.ctrlKey && e.key === 'u')) {
+            e.preventDefault();
+        }
+    });
+</script>
 </body>
 </html>
