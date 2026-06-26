@@ -91,10 +91,6 @@
             <span class="text-[10px] text-slate-400 font-semibold uppercase">Panel Kasir Pro</span>
           </div>
         </div>
-        <!-- Light/Dark Toggle -->
-        <button onclick="toggleDarkMode()" class="text-slate-500 hover:text-brand-500 dark:text-slate-400 p-2 rounded-lg focus:outline-none">
-          <i id="themeIcon" class="fas fa-moon text-lg"></i>
-        </button>
       </div>
 
       <!-- Menu Navigation -->
@@ -112,40 +108,46 @@
           <i class="fas fa-sliders-h w-5"></i> Pengaturan (Admin)
         </button>
       </nav>
-
-      <!-- Sidebar Footer (Info Waktu Real-time) -->
-      <div class="hidden md:block p-4 border-t border-slate-200 dark:border-slate-700">
-        <div class="bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl text-center">
-          <div id="liveDayDate" class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Rabu, 24 Juni 2026</div>
-          <div id="liveClock" class="text-sm font-black text-brand-600 dark:text-brand-400 mt-1">16:53:00 WIB</div>
-        </div>
-      </div>
     </aside>
 
     <!-- CONTENT WRAPPER -->
     <main class="flex-1 flex flex-col min-h-screen overflow-x-hidden">
-      <!-- HEADER (Mobile Clock & Info) -->
-      <header class="no-print bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <!-- HEADER (Mobile Clock, Info & Dinamis Gelap Terang) -->
+      <header class="no-print bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 md:px-8 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+        <!-- Sisi Kiri: Profil Toko -->
         <div class="flex items-center gap-3">
-          <div id="header-logo-container" class="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-600 shrink-0 md:hidden">
-            <i class="fas fa-soap text-lg text-brand-500"></i>
+          <div id="header-logo-container" class="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-xl flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-600 shrink-0">
+            <i class="fas fa-soap text-xl text-brand-500"></i>
           </div>
           <div>
-            <h1 id="shopTitle" class="text-xl font-extrabold text-slate-800 dark:text-white font-serif">Clean & Glow Laundry</h1>
+            <h1 id="shopTitle" class="text-xl font-extrabold text-slate-800 dark:text-white font-serif tracking-tight">Clean & Glow Laundry</h1>
             <p id="shopAddress" class="text-xs text-slate-500 dark:text-slate-400">Jl. Sukacita No. 12, Samarinda</p>
           </div>
         </div>
         
-        <!-- Live Jam di Mobile -->
-        <div class="flex items-center gap-3">
-          <div class="md:hidden text-right">
-            <span id="liveMobileTime" class="text-sm font-black text-brand-600 dark:text-brand-400 block">16:53:00</span>
-            <span id="liveMobileDate" class="text-[10px] text-slate-400">Rabu, 24 Juni 2026</span>
+        <!-- Sisi Kanan: Widget Jam, Status Cloud Database & Sakelar Gelap Terang -->
+        <div class="flex flex-wrap items-center gap-3 justify-between lg:justify-end">
+          
+          <!-- Badge Koneksi Real-time ke Google Sheet -->
+          <div id="db-status-badge" class="bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all border border-amber-500/15">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+            Menghubungkan...
           </div>
-          <div class="bg-brand-500/10 text-brand-600 dark:text-brand-400 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-            Sistem Sinkron
+
+          <!-- Jam, Hari, & Tanggal Terintegrasi -->
+          <div class="bg-slate-50 dark:bg-slate-700/45 px-4 py-2 rounded-xl border border-slate-150 dark:border-slate-700 flex items-center gap-3 text-xs sm:text-sm">
+            <div class="text-right">
+              <span id="liveMobileDate" class="font-bold text-slate-500 dark:text-slate-400 block text-[11px] leading-tight">Memuat Tanggal...</span>
+              <span id="liveMobileTime" class="font-black text-brand-600 dark:text-brand-400 text-sm">00:00:00</span>
+            </div>
+            <div class="w-[1px] h-6 bg-slate-200 dark:bg-slate-600"></div>
+            <span class="text-[10px] font-bold text-slate-400 tracking-wider">WIB</span>
           </div>
+
+          <!-- Tombol Sakelar Gelap Terang Bulat Premium -->
+          <button onclick="toggleDarkMode()" class="w-10 h-10 bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-500 dark:text-slate-300 rounded-xl flex items-center justify-center border border-slate-200/50 dark:border-slate-700 transition-all focus:outline-none" title="Ubah Mode Layar">
+            <i id="themeIcon" class="fas fa-moon text-base"></i>
+          </button>
         </div>
       </header>
 
@@ -281,17 +283,17 @@
                 <!-- Jenis Layanan / Paket -->
                 <div>
                   <label class="block text-sm font-bold text-slate-500 mb-2">Paket Layanan <span class="text-red-500">*</span></label>
-                  <select id="form-layanan" onchange="calculatePrice()" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all font-semibold">
-                    <!-- Opsi Layanan Dirender Dinamis dari Database Google Sheets -->
+                  <select id="form-layanan" onchange="calculatePrice()" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all font-semibold text-slate-800 dark:text-slate-100">
+                    <!-- Opsi Layanan Dirender Dinamis -->
                   </select>
                 </div>
 
-                <!-- Berat atau Unit (DENGAN INTEGRASI ADJUSTMENT BUTTONS) -->
+                <!-- Berat atau Unit -->
                 <div>
                   <label class="block text-sm font-bold text-slate-500 mb-2">Berat / Qty (Kg/Unit) <span class="text-red-500">*</span></label>
                   <div class="flex items-center">
                     <button type="button" onclick="adjustWeight(-0.5)" class="px-4 py-3 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-l-xl border border-r-0 border-slate-300 dark:border-slate-600 focus:outline-none font-bold transition-all">-</button>
-                    <input type="number" step="0.1" min="0.1" id="form-berat" required oninput="calculatePrice()" value="1.0" class="w-full text-center py-3 border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all font-black text-lg">
+                    <input type="number" step="0.1" min="0.1" id="form-berat" required oninput="calculatePrice()" value="1.0" class="w-full text-center py-3 border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all font-black text-lg text-slate-800 dark:text-slate-100">
                     <button type="button" onclick="adjustWeight(0.5)" class="px-4 py-3 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-r-xl border border-l-0 border-slate-300 dark:border-slate-600 focus:outline-none font-bold transition-all">+</button>
                   </div>
                 </div>
@@ -307,13 +309,13 @@
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Pembayaran / DP (DENGAN TOMBOL PINTAS MAJU) -->
+                <!-- Pembayaran / DP -->
                 <div class="md:col-span-2">
                   <label class="block text-sm font-bold text-slate-500 mb-2">Jumlah Bayar / DP (Rp)</label>
                   <div class="flex flex-col sm:flex-row gap-3">
                     <div class="relative flex-1">
                       <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-bold">Rp</span>
-                      <input type="number" id="form-dp" oninput="validatePaymentStatus()" value="0" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all font-bold text-lg">
+                      <input type="number" id="form-dp" oninput="validatePaymentStatus()" value="0" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all font-bold text-lg text-slate-800 dark:text-slate-100">
                     </div>
                     <!-- Quick Payment Action Chips -->
                     <div class="flex items-center gap-1.5 overflow-x-auto py-1">
@@ -324,10 +326,10 @@
                   </div>
                 </div>
 
-                <!-- Status Pembayaran (Otomatis & Terkunci untuk menghindari kelalaian kasir) -->
+                <!-- Status Pembayaran -->
                 <div>
                   <label class="block text-sm font-bold text-slate-500 mb-2">Status Pembayaran</label>
-                  <select id="form-status-bayar" disabled class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-extrabold outline-none cursor-not-allowed">
+                  <select id="form-status-bayar" disabled class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 text-slate-550 dark:text-slate-300 font-extrabold outline-none cursor-not-allowed">
                     <option value="Belum Lunas">Belum Lunas</option>
                     <option value="DP (Uang Muka)">DP (Uang Muka)</option>
                     <option value="Lunas">Lunas</option>
@@ -339,7 +341,7 @@
                 <!-- Status Proses Cucian -->
                 <div>
                   <label class="block text-sm font-bold text-slate-500 mb-2">Status Pengerjaan</label>
-                  <select id="form-status-proses" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all font-semibold">
+                  <select id="form-status-proses" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all font-semibold text-slate-800 dark:text-slate-100">
                     <option value="Antrean">Antrean</option>
                     <option value="Proses">Proses Cuci</option>
                     <option value="Selesai">Selesai</option>
@@ -350,7 +352,7 @@
                 <!-- Catatan Tambahan -->
                 <div>
                   <label class="block text-sm font-bold text-slate-500 mb-2">Catatan Khusus (Opsional)</label>
-                  <input type="text" id="form-catatan" placeholder="Contoh: baju putih dipisah, setrika pewangi extra" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                  <input type="text" id="form-catatan" placeholder="Contoh: baju putih dipisah, setrika pewangi extra" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all text-slate-850 dark:text-slate-100">
                 </div>
               </div>
 
@@ -375,7 +377,7 @@
           <div class="bg-white dark:bg-slate-800 p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 flex flex-col md:flex-row gap-4 items-center justify-between">
             <div class="relative w-full md:w-96">
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fas fa-search"></i></span>
-              <input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="Cari nama pelanggan, nomor nota, atau HP..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition-all">
+              <input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="Cari nama pelanggan, nomor nota, atau HP..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition-all text-slate-800 dark:text-slate-100">
             </div>
 
             <!-- Filter Status -->
@@ -415,7 +417,7 @@
         </div>
 
 
-        <!-- ==================== TAB 4: PENGATURAN (ADMIN ONLY SYSTEM) ==================== -->
+        <!-- ==================== TAB 4: PENGATURAN ==================== -->
         <div id="tab-pengaturan" class="tab-content hidden">
           
           <!-- GERBANG PENGUNCI PIN ADMIN -->
@@ -424,13 +426,13 @@
               <i class="fas fa-user-shield text-4xl"></i>
             </div>
             <div>
-              <h3 class="text-xl font-bold">Verifikasi Hak Akses Admin</h3>
+              <h3 class="text-xl font-bold text-slate-850 dark:text-white">Verifikasi Hak Akses Admin</h3>
               <p class="text-xs text-slate-400 mt-1">Masukkan PIN Admin untuk mengakses konfigurasi sensitif, tarif layanan & logo toko.</p>
             </div>
 
             <div class="relative">
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fas fa-key"></i></span>
-              <input type="password" id="adminPinInput" maxlength="6" placeholder="Masukkan PIN Admin..." class="w-full pl-10 pr-12 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-brand-500 text-center tracking-widest font-black text-lg outline-none transition-all" onkeydown="if(event.key === 'Enter') verifyAdminAccess()">
+              <input type="password" id="adminPinInput" maxlength="6" placeholder="Masukkan PIN Admin..." class="w-full pl-10 pr-12 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-brand-500 text-center tracking-widest font-black text-lg outline-none transition-all text-slate-800 dark:text-slate-150" onkeydown="if(event.key === 'Enter') verifyAdminAccess()">
               <button type="button" onclick="toggleAdminPinEye()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-brand-500 outline-none">
                 <i id="adminEyeIcon" class="fas fa-eye"></i>
               </button>
@@ -441,43 +443,43 @@
             </button>
           </div>
 
-          <!-- PANEL PENGATURAN UTAMA -->
+          <!-- PANEL PENGATURAN UTAMA (Terbuka Jika PIN Benar) -->
           <div id="adminPanelContent" class="hidden max-w-4xl mx-auto space-y-8">
-            <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
+            <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-150 dark:border-slate-700 shadow-sm">
               <div class="flex items-center gap-3">
                 <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="text-sm font-bold text-slate-500 dark:text-slate-300">Mode Admin Terverifikasi</span>
+                <span class="text-sm font-bold text-slate-550 dark:text-slate-300">Mode Admin Terverifikasi</span>
               </div>
-              <button onclick="lockAdminMode()" class="px-3 py-1.5 bg-red-100 text-red-600 dark:bg-red-950/40 dark:text-red-400 rounded-lg text-xs font-bold hover:bg-red-200 transition-all">
+              <button onclick="lockAdminMode()" class="px-3 py-1.5 bg-red-105 text-red-600 dark:bg-red-950/40 dark:text-red-400 rounded-lg text-xs font-bold hover:bg-red-200 transition-all">
                 <i class="fas fa-lock mr-1"></i> Kunci Panel
               </button>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
-              <!-- Kiri: Pengaturan Umum Laundry & Ganti PIN -->
+              <!-- Kiri: Pengaturan Umum Laundry -->
               <div class="lg:col-span-2 space-y-6">
                 <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/80">
-                  <h3 class="text-lg font-bold border-b pb-3 border-slate-100 dark:border-slate-700 mb-4"><i class="fas fa-store text-brand-500"></i> Informasi & Profil Toko</h3>
+                  <h3 class="text-lg font-bold border-b pb-3 border-slate-100 dark:border-slate-700 mb-4 text-slate-850 dark:text-white"><i class="fas fa-store text-brand-500"></i> Informasi & Profil Toko</h3>
                   
                   <form id="settingsForm" onsubmit="handleSettingsSubmit(event)" class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label class="block text-xs font-bold text-slate-400 mb-1">Nama Laundry</label>
-                        <input type="text" id="cfg-nama" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 text-sm outline-none transition-all">
+                        <input type="text" id="cfg-nama" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 text-sm outline-none transition-all text-slate-800 dark:text-slate-100">
                       </div>
                       <div>
                         <label class="block text-xs font-bold text-slate-400 mb-1">Telepon WA (Kode Negara)</label>
-                        <input type="text" id="cfg-telepon" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 text-sm outline-none transition-all">
+                        <input type="text" id="cfg-telepon" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 text-sm outline-none transition-all text-slate-800 dark:text-slate-100">
                       </div>
                     </div>
 
                     <div>
                       <label class="block text-xs font-bold text-slate-400 mb-1">Alamat Laundry</label>
-                      <textarea id="cfg-alamat" required rows="2" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 text-sm outline-none transition-all"></textarea>
+                      <textarea id="cfg-alamat" required rows="2" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 text-sm outline-none transition-all text-slate-800 dark:text-slate-100"></textarea>
                     </div>
 
-                    <!-- Panel Unggah Logo Dinamis -->
+                    <!-- Panel Unggah Logo -->
                     <div class="bg-slate-50 dark:bg-slate-700/30 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-700 space-y-2">
                       <label class="block text-xs font-bold text-slate-500">Logo Perusahaan</label>
                       <div class="flex items-center gap-4">
@@ -501,7 +503,7 @@
                           <label class="block text-xs font-bold text-slate-400 mb-1">PIN Admin Baru</label>
                           <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fas fa-key"></i></span>
-                            <input type="password" id="cfg-pin" required maxlength="6" class="w-full pl-9 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 text-sm outline-none transition-all">
+                            <input type="password" id="cfg-pin" required maxlength="6" class="w-full pl-9 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 text-sm outline-none transition-all text-slate-800 dark:text-slate-100">
                             <button type="button" onclick="toggleInputPinEye('cfg-pin', 'eye-cfg-pin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-brand-500">
                               <i id="eye-cfg-pin" class="fas fa-eye"></i>
                             </button>
@@ -519,21 +521,27 @@
                 </div>
               </div>
 
-              <!-- Rencana Harga Layanan -->
+              <!-- Rencana Harga Layanan (Fixed Cutoff Issue) -->
               <div class="space-y-6">
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/80">
-                  <div class="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-slate-700 mb-4">
-                    <h3 class="text-sm font-black uppercase tracking-wider text-slate-500 dark:text-slate-300"><i class="fas fa-tags text-cyan-500"></i> Tarif Layanan</h3>
-                    <button onclick="addLayananRow()" class="p-1.5 bg-brand-500 text-white rounded-lg text-xs hover:bg-brand-600 transition-all"><i class="fas fa-plus"></i> Paket</button>
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-lg border border-slate-150 dark:border-slate-700/80">
+                  <div class="flex items-center justify-between border-b pb-4 border-slate-100 dark:border-slate-700 mb-4">
+                    <div>
+                      <h3 class="text-sm font-black uppercase tracking-wider text-slate-700 dark:text-slate-300"><i class="fas fa-tags text-cyan-500"></i> Tarif Layanan</h3>
+                      <p class="text-[10px] text-slate-400 mt-0.5">Atur tarif paket cucian laundry.</p>
+                    </div>
+                    <button onclick="addLayananRow()" class="px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1">
+                      <i class="fas fa-plus"></i> Paket
+                    </button>
                   </div>
                   
-                  <div id="layananFormContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-                    <!-- Dynamic Rows -->
+                  <!-- Container Baris Tarif Tanpa Cut-off -->
+                  <div id="layananFormContainer" class="space-y-4 max-h-[440px] overflow-y-auto pr-1">
+                    <!-- Dynamic Rows diisi oleh JS -->
                   </div>
                   
-                  <div class="pt-4 border-t border-slate-100 dark:border-slate-700">
-                    <button onclick="saveAllLayananPrices()" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold rounded-xl transition-all shadow-md">
-                      <i class="fas fa-check mr-1.5"></i> Simpan Semua Tarif
+                  <div class="pt-4 border-t border-slate-100 dark:border-slate-700 mt-4">
+                    <button onclick="saveAllLayananPrices()" class="w-full py-3 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5">
+                      <i class="fas fa-check-double"></i> Simpan Semua Tarif
                     </button>
                   </div>
                 </div>
@@ -560,7 +568,7 @@
   <div id="receiptPreviewModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/85 backdrop-blur-sm px-4">
     <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-2xl max-w-sm w-full border border-slate-200 dark:border-slate-700 flex flex-col max-h-[90vh]">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700 mb-4">
-        <h3 class="text-md font-extrabold flex items-center gap-2"><i class="fas fa-file-invoice text-brand-500"></i> Pratinjau Cetak Struk</h3>
+        <h3 class="text-md font-extrabold flex items-center gap-2 text-slate-850 dark:text-white"><i class="fas fa-file-invoice text-brand-500"></i> Pratinjau Cetak Struk</h3>
         <button onclick="closeReceiptPreview()" class="text-slate-400 hover:text-red-500"><i class="fas fa-times-circle text-lg"></i></button>
       </div>
       
@@ -617,15 +625,12 @@
 
     // FUNGSI NAVIGASI TAB UTAMA (MENANGANI TAMPILAN ANTARMUKA)
     function switchTab(tabId) {
-      // Sembunyikan semua konten tab
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      // Tampilkan tab yang dipilih
       const targetTab = document.getElementById('tab-' + tabId);
       if (targetTab) {
         targetTab.classList.remove('hidden');
       }
 
-      // Perbarui style tombol navigasi aktif
       const navButtons = ['dashboard', 'transaksi-baru', 'daftar-transaksi', 'pengaturan'];
       navButtons.forEach(btn => {
         const el = document.getElementById('nav-' + btn);
@@ -640,9 +645,27 @@
 
       appState.activeTab = tabId;
 
-      // Kunci kembali admin jika berpindah dari tab pengaturan
       if (tabId !== 'pengaturan' && appState.isAdminAuthorized) {
         lockAdminMode();
+      }
+    }
+
+    // UPDATE STATUS DATABASE CLOUD SECARA VISUAL
+    function updateDbStatusBadge(connected, message = "") {
+      const badge = document.getElementById('db-status-badge');
+      if (!badge) return;
+      if (connected) {
+        badge.className = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all border border-emerald-500/15";
+        badge.innerHTML = `<span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> Cloud Terhubung`;
+        badge.onclick = null;
+        badge.title = "Aplikasi Anda terhubung penuh dengan Google Sheets target!";
+      } else {
+        badge.className = "bg-rose-500/10 text-rose-600 dark:text-rose-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all border border-rose-500/15 cursor-pointer hover:bg-rose-500/20";
+        badge.title = message || "Gagal menyinkronkan data ke spreadsheet. Klik untuk solusi.";
+        badge.onclick = function() {
+          alert(`Sistem Berjalan di Mode Cadangan Lokal (Offline Mode)\n\nDetail Error:\n"${badge.title}"\n\nLangkah Solusi agar data masuk ke Google Sheets:\n1. Pastikan Anda sudah mempublikasikan Google Apps Script Anda sebagai Web App.\n2. Saat rilis web app, pastikan hak akses diatur ke "Anyone" (Siapa saja, termasuk anonim).\n3. Pastikan Spreadsheet ID di Code.gs sesuai dengan milik Anda.\n4. Pastikan URL Web App GAS Anda cocok dengan variabel GAS_URL di frontend.`);
+        };
+        badge.innerHTML = `<span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span> Mode Lokal (Offline)`;
       }
     }
 
@@ -669,14 +692,14 @@
           body: JSON.stringify(data)
         })
         .then(response => {
-          if (!response.ok) throw new Error('Respon jaringan bermasalah');
+          if (!response.ok) throw new Error('Respon server GAS bermasalah');
           return response.json();
         })
         .then(result => {
           if (result.status === 'success') {
             onSuccess(result);
           } else {
-            onFailure(result.message || 'Operasi database gagal');
+            onFailure(result.message || 'Operasi database Sheets gagal');
           }
         })
         .catch(err => {
@@ -734,19 +757,21 @@
       }
     }
 
+    // CLOCK REALTIME PADA HEADER
     function initClock() {
       const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
       const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
       setInterval(() => {
         const d = new Date();
-        const dateStr = `${dayNames[d.getDay()]} , ${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
-        const clockStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')} WIB`;
+        const dateStr = `${dayNames[d.getDay()]}, ${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+        const clockStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
 
-        if (document.getElementById('liveDayDate')) document.getElementById('liveDayDate').innerText = dateStr;
-        if (document.getElementById('liveClock')) document.getElementById('liveClock').innerText = clockStr;
-        if (document.getElementById('liveMobileDate')) document.getElementById('liveMobileDate').innerText = dateStr;
-        if (document.getElementById('liveMobileTime')) document.getElementById('liveMobileTime').innerText = clockStr.split(' ')[0];
+        const elDate = document.getElementById('liveMobileDate');
+        const elTime = document.getElementById('liveMobileTime');
+
+        if (elDate) elDate.innerText = dateStr;
+        if (elTime) elTime.innerText = clockStr;
       }, 1000);
     }
 
@@ -759,8 +784,10 @@
         renderLayananOptions();
         renderTransaksiTable();
         updateDashboardStats();
+        updateDbStatusBadge(true); // Connected successfully
       }, function(err) {
-        showToast("Koneksi gagal, beralih ke local: " + err, "error");
+        updateDbStatusBadge(false, err); // Offline mode with details
+        showToast("Database Google Sheets tidak merespon. Menjalankan mode offline cadangan.", "error");
       });
     }
 
@@ -812,7 +839,6 @@
       const total = Math.round(tarif * berat);
       document.getElementById('form-total').value = total;
 
-      // Amankan input DP agar tidak melebihi total baru
       const dpInput = document.getElementById('form-dp');
       let dpVal = Number(dpInput.value || 0);
       if (dpVal > total) {
@@ -843,7 +869,6 @@
       const dpInput = document.getElementById('form-dp');
       let dp = Number(dpInput.value || 0);
 
-      // Proteksi agar DP tidak melampaui Total
       if (dp > total) {
         dp = total;
         dpInput.value = total;
@@ -961,21 +986,32 @@
       }
     }
 
+    // RENDERING BARIS TARIF LAYANAN (FIXED WRAPPING RESPONSIVE DESIGN)
     function renderLayananRows() {
       const container = document.getElementById('layananFormContainer');
       container.innerHTML = '';
 
       appState.layanan.forEach((item, index) => {
         const div = document.createElement('div');
-        div.className = "flex items-center gap-2 bg-slate-50 dark:bg-slate-700/40 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700";
+        // Tata letak fleksibel kolaboratif agar tidak terpotong pada split view / layar kecil
+        div.className = "flex flex-col sm:flex-row gap-3 bg-slate-50 dark:bg-slate-700/40 p-3 rounded-2xl border border-slate-200 dark:border-slate-700/60 transition-all shadow-sm";
         div.innerHTML = `
-          <input type="text" value="${item.ID}" readonly class="w-12 text-center text-xs font-mono font-bold text-slate-400 bg-transparent outline-none">
-          <input type="text" id="lay-name-${index}" value="${item.Nama_Layanan}" placeholder="Nama Layanan" class="flex-1 px-2.5 py-1.5 rounded-lg text-xs border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none">
-          <div class="relative w-28">
-            <span class="absolute left-2 top-2 text-[10px] text-slate-400 font-bold">Rp</span>
-            <input type="number" id="lay-tarif-${index}" value="${item.Tarif}" class="w-full pl-6 pr-2 py-1.5 rounded-lg text-xs text-right border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 font-bold outline-none">
+          <!-- Sisi Kiri: ID & Input Nama Paket Cucian -->
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <span class="w-10 text-center text-[11px] font-mono font-black text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shrink-0">${item.ID}</span>
+            <input type="text" id="lay-name-${index}" value="${item.Nama_Layanan}" placeholder="Nama Layanan" class="flex-1 min-w-0 px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-brand-500 text-slate-850 dark:text-slate-100 transition-all">
           </div>
-          <button onclick="removeLayananRow(${index})" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"><i class="fas fa-trash-alt"></i></button>
+          
+          <!-- Sisi Kanan: Input Harga Jasa & Tombol Hapus -->
+          <div class="flex items-center gap-2 justify-between sm:justify-end shrink-0 w-full sm:w-auto">
+            <div class="relative w-full sm:w-32">
+              <span class="absolute left-3 top-2.5 text-[10px] text-slate-400 font-bold">Rp</span>
+              <input type="number" id="lay-tarif-${index}" value="${item.Tarif}" class="w-full pl-8 pr-2.5 py-1.5 rounded-lg text-xs font-black text-right border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-brand-500 text-slate-800 dark:text-slate-100 transition-all">
+            </div>
+            <button onclick="removeLayananRow(${index})" class="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all shrink-0" title="Hapus Jasa">
+              <i class="fas fa-trash-alt text-sm"></i>
+            </button>
+          </div>
         `;
         container.appendChild(div);
       });
@@ -1025,12 +1061,13 @@
       appState.layanan = updatedLayananList;
       renderLayananOptions();
 
-      showToast("Menyimpan layanan baru...", "info");
+      showToast("Menyimpan perubahan layanan...", "info");
       callBackend('updateSettings', { config: appState.config, layanan: appState.layanan }, function(response) {
-        showToast("Tarif paket diperbarui!", "success");
+        showToast("Tarif paket diperbarui di Cloud!", "success");
         loadApplicationData();
       }, function(err) {
-        showToast("Gagal menyimpan ke spreadsheet: " + err, "error");
+        updateDbStatusBadge(false, "Simpan tarif gagal: " + err);
+        showToast("Gagal simpan ke Sheets, dicadangkan secara lokal.", "error");
       });
     }
 
@@ -1063,14 +1100,15 @@
         Tanggal_Selesai: document.getElementById('form-status-proses').value === 'Selesai' ? new Date().toISOString().substring(0, 10) : ''
       };
 
-      showToast("Mengirim data ke Spreadsheet...", "info");
+      showToast("Mengirim data transaksi...", "info");
       callBackend('saveTransaksi', transData, function(response) {
-        showToast("Tersimpan di Google Sheets!", "success");
+        showToast("Transaksi Masuk Google Sheets!", "success");
         loadApplicationData();
         cancelForm();
         switchTab('daftar-transaksi');
       }, function(err) {
-        showToast("Koneksi bermasalah: " + err, "error");
+        updateDbStatusBadge(false, "Simpan transaksi gagal: " + err);
+        showToast("Masalah sinkronisasi Google Sheets. Disimpan ke cadangan lokal.", "error");
       });
     }
 
@@ -1101,7 +1139,6 @@
       switchTab('transaksi-baru');
     }
 
-    // MENGUBAH STATUS PROGRESS CELERAT SECARA DINAMIS
     function updateSingleStatus(id, selectEl) {
       const item = appState.transaksi.find(t => t.ID_Transaksi === id);
       if (!item) return;
@@ -1116,7 +1153,8 @@
         showToast("Status proses diperbarui!", "success");
         loadApplicationData();
       }, function(err) {
-        showToast("Pembaruan gagal: " + err, "error");
+        updateDbStatusBadge(false, "Pembaruan status gagal: " + err);
+        showToast("Pembaruan gagal tersinkron ke cloud.", "error");
       });
     }
 
@@ -1134,7 +1172,8 @@
         showToast("Status pembayaran diperbarui!", "success");
         loadApplicationData();
       }, function(err) {
-        showToast("Pembaruan gagal: " + err, "error");
+        updateDbStatusBadge(false, "Pembaruan pembayaran gagal: " + err);
+        showToast("Pembaruan bayar gagal tersinkron ke cloud.", "error");
       });
     }
 
@@ -1147,7 +1186,8 @@
         showToast("Berhasil dihapus!", "success");
         loadApplicationData();
       }, function(err) {
-        showToast("Gagal menghapus: " + err, "error");
+        updateDbStatusBadge(false, "Hapus transaksi gagal: " + err);
+        showToast("Gagal menghapus dari Cloud.", "error");
       });
     }
 
@@ -1164,7 +1204,7 @@
         tbody.innerHTML = `
           <tr>
             <td colspan="8" class="p-8 text-center text-slate-400 dark:text-slate-500 font-medium">
-              <i class="fas fa-folder-open text-3xl mb-2 block"></i> Tidak ada transaksi.
+              <i class="fas fa-folder-open text-3xl mb-2 block"></i> Tidak ada transaksi ditemukan.
             </td>
           </tr>
         `;
@@ -1191,7 +1231,7 @@
           </td>
           
           <td class="p-4 text-center">
-            <select onchange="updateSingleStatus('${item.ID_Transaksi}', this)" class="text-xs font-bold rounded-lg px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:ring-1 focus:ring-brand-500 border-none outline-none">
+            <select onchange="updateSingleStatus('${item.ID_Transaksi}', this)" class="text-xs font-bold rounded-lg px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-750 dark:text-slate-200 focus:ring-1 focus:ring-brand-500 border-none outline-none">
               <option value="Antrean" ${item.Status_Proses === 'Antrean' ? 'selected' : ''}>Antrean</option>
               <option value="Proses" ${item.Status_Proses === 'Proses' ? 'selected' : ''}>Proses</option>
               <option value="Selesai" ${item.Status_Proses === 'Selesai' ? 'selected' : ''}>Selesai</option>
@@ -1200,7 +1240,7 @@
           </td>
 
           <td class="p-4 text-center">
-            <select onchange="updatePaymentStatusDirect('${item.ID_Transaksi}', this)" class="text-xs font-bold rounded-lg px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:ring-1 focus:ring-brand-500 border-none outline-none">
+            <select onchange="updatePaymentStatusDirect('${item.ID_Transaksi}', this)" class="text-xs font-bold rounded-lg px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-750 dark:text-slate-200 focus:ring-1 focus:ring-brand-500 border-none outline-none">
               <option value="Belum Lunas" ${item.Status_Bayar === 'Belum Lunas' ? 'selected' : ''}>Belum Lunas</option>
               <option value="DP (Uang Muka)" ${item.Status_Bayar === 'DP (Uang Muka)' ? 'selected' : ''}>DP (Uang Muka)</option>
               <option value="Lunas" ${item.Status_Bayar === 'Lunas' ? 'selected' : ''}>Lunas</option>
@@ -1212,7 +1252,7 @@
               <button onclick="previewStruk('${item.ID_Transaksi}')" class="p-2 bg-slate-100 hover:bg-brand-500 hover:text-white rounded-lg text-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-brand-500 transition-all" title="Pratinjau Struk">
                 <i class="fas fa-print"></i>
               </button>
-              <button onclick="sendWA('${item.ID_Transaksi}')" class="p-2 bg-emerald-100 hover:bg-emerald-500 hover:text-white rounded-lg text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 dark:hover:bg-emerald-500 transition-all" title="Kirim Pesan WhatsApp">
+              <button onclick="sendWA('${item.ID_Transaksi}')" class="p-2 bg-emerald-100 hover:bg-emerald-500 hover:text-white rounded-lg text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 dark:hover:bg-emerald-500 transition-all" title="Kirim WhatsApp">
                 <i class="fab fa-whatsapp text-md font-bold"></i>
               </button>
               <button onclick="editTransaksi('${item.ID_Transaksi}')" class="p-2 bg-indigo-100 hover:bg-indigo-500 hover:text-white rounded-lg text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 dark:hover:bg-indigo-500 transition-all" title="Ubah Data">
@@ -1268,10 +1308,12 @@
       const buttons = ['Semua', 'Antrean', 'Proses', 'Selesai', 'Diambil'];
       buttons.forEach(btn => {
         const el = document.getElementById('filterBtn-' + btn);
-        if (btn === status) {
-          el.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-brand-500 text-white shadow-sm shrink-0";
-        } else {
-          el.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 shrink-0";
+        if (el) {
+          if (btn === status) {
+            el.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-brand-500 text-white shadow-sm shrink-0";
+          } else {
+            el.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 shrink-0";
+          }
         }
       });
 
@@ -1296,7 +1338,8 @@
         lockAdminMode();
         switchTab('dashboard');
       }, function(err) {
-        showToast("Pembaruan konfigurasi gagal: " + err, "error");
+        updateDbStatusBadge(false, "Simpan profil gagal: " + err);
+        showToast("Pembaruan gagal tersinkron ke cloud.", "error");
       });
     }
 
@@ -1436,11 +1479,11 @@
       
       if (html.classList.contains('dark')) {
         html.classList.remove('dark');
-        if (themeIcon) themeIcon.className = 'fas fa-moon text-lg';
+        if (themeIcon) themeIcon.className = 'fas fa-moon text-base';
         localStorage.setItem('CG_Theme', 'light');
       } else {
         html.classList.add('dark');
-        if (themeIcon) themeIcon.className = 'fas fa-sun text-lg text-amber-400';
+        if (themeIcon) themeIcon.className = 'fas fa-sun text-base text-amber-400';
         localStorage.setItem('CG_Theme', 'dark');
       }
     }
@@ -1452,10 +1495,10 @@
       
       if (savedTheme === 'dark') {
         html.classList.add('dark');
-        if (themeIcon) themeIcon.className = 'fas fa-sun text-lg text-amber-400';
+        if (themeIcon) themeIcon.className = 'fas fa-sun text-base text-amber-400';
       } else {
         html.classList.remove('dark');
-        if (themeIcon) themeIcon.className = 'fas fa-moon text-lg';
+        if (themeIcon) themeIcon.className = 'fas fa-moon text-base';
       }
     }
 
