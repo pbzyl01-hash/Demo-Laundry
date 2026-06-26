@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clean & Glow Laundry App</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icon CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    // Konfigurasi Tailwind Kustom
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* ANIMASI GLOW MENYALA & BERDENYUT */
+    @keyframes textGlow {
+      0%, 100% {
+        text-shadow: 0 0 10px rgba(14, 165, 233, 0.6), 0 0 20px rgba(14, 165, 233, 0.4);
+        transform: scale(1);
+      }
+      50% {
+        text-shadow: 0 0 20px rgba(6, 182, 212, 0.9), 0 0 35px rgba(6, 182, 212, 0.7);
+        transform: scale(1.03);
+      }
+    }
+    .neon-glow-title {
+      animation: textGlow 2.5s infinite ease-in-out;
+    }
+
+    /* FORMAT CETAK STRUK THERMAL (58mm) */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #thermalReceipt, #thermalReceipt * {
+        visibility: visible;
+      }
+      #thermalReceipt {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 58mm;
+        padding: 4px;
+        background: white;
+        color: black;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 10px;
+        line-height: 1.2;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-slate-800 font-sans min-h-screen transition-colors duration-300 dark:bg-slate-900 dark:text-slate-100">
+
+  <!-- ==================== MAIN APPLICATION CONTAINER ==================== -->
+  <div id="appContainer" class="min-h-screen flex flex-col md:flex-row">
+    
+    <!-- SIDEBAR NAVIGATION (Desktop) & BOTTOM NAV (Mobile) -->
+    <aside class="no-print w-full md:w-64 bg-white dark:bg-slate-800 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 flex flex-col justify-between md:min-h-screen shrink-0 transition-all z-40">
+      <!-- Sidebar Header -->
+      <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <!-- Logo Dinamis Perusahaan -->
+          <div id="sidebar-logo-container" class="w-12 h-12 bg-brand-500 text-white rounded-xl flex items-center justify-center overflow-hidden shrink-0 border border-slate-100 dark:border-slate-700">
+            <i class="fas fa-soap text-xl"></i>
+          </div>
+          <div>
+            <h2 id="sidebarShopTitle" class="font-black text-base tracking-tight text-brand-600 dark:text-brand-500 neon-glow-title">C&G Laundry</h2>
+            <span class="text-[10px] text-slate-400 font-semibold uppercase">Panel Kasir Pro</span>
+          </div>
+        </div>
+        <!-- Light/Dark Toggle -->
+        <button onclick="toggleDarkMode()" class="text-slate-500 hover:text-brand-500 dark:text-slate-400 p-2 rounded-lg focus:outline-none">
+          <i id="themeIcon" class="fas fa-moon text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Menu Navigation -->
+      <nav class="flex md:flex-col gap-1 p-2 md:p-4 overflow-x-auto md:overflow-visible shrink-0 grow">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all text-brand-600 bg-brand-50 dark:text-brand-400 dark:bg-slate-700/50 min-w-max md:w-full">
+          <i class="fas fa-chart-pie w-5"></i> Dashboard
+        </button>
+        <button onclick="switchTab('transaksi-baru')" id="nav-transaksi-baru" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/30 min-w-max md:w-full">
+          <i class="fas fa-plus-circle w-5"></i> Input Transaksi
+        </button>
+        <button onclick="switchTab('daftar-transaksi')" id="nav-daftar-transaksi" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/30 min-w-max md:w-full">
+          <i class="fas fa-clipboard-list w-5"></i> Daftar Transaksi
+        </button>
+        <button onclick="switchTab('pengaturan')" id="nav-pengaturan" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/30 min-w-max md:w-full">
+          <i class="fas fa-sliders-h w-5"></i> Pengaturan
+        </button>
+      </nav>
+
+      <!-- Sidebar Footer (Info Waktu Real-time) -->
+      <div class="hidden md:block p-4 border-t border-slate-200 dark:border-slate-700">
+        <div class="bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl text-center">
+          <div id="liveDayDate" class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Rabu, 24 Juni 2026</div>
+          <div id="liveClock" class="text-sm font-black text-brand-600 dark:text-brand-400 mt-1">16:53:00 WIB</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTENT WRAPPER -->
+    <main class="flex-1 flex flex-col min-h-screen overflow-x-hidden">
+      <!-- HEADER (Mobile Clock & Info) -->
+      <header class="no-print bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div id="header-logo-container" class="w-10 h-10 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-600 shrink-0 md:hidden">
+            <i class="fas fa-soap text-lg text-brand-500"></i>
+          </div>
+          <div>
+            <h1 id="shopTitle" class="text-xl font-extrabold text-slate-800 dark:text-white">Clean & Glow Laundry</h1>
+            <p id="shopAddress" class="text-xs text-slate-500 dark:text-slate-400">Jl. Sukacita No. 12, Samarinda</p>
+          </div>
+        </div>
+        
+        <!-- Live Jam di Mobile -->
+        <div class="flex items-center gap-3">
+          <div class="md:hidden text-right">
+            <span id="liveMobileTime" class="text-sm font-black text-brand-600 dark:text-brand-400 block">16:53:00</span>
+            <span id="liveMobileDate" class="text-[10px] text-slate-400">Rabu, 24 Juni 2026</span>
+          </div>
+          <div class="bg-brand-500/10 text-brand-600 dark:text-brand-400 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+            Sistem Aktif
+          </div>
+        </div>
+      </header>
+
+      <!-- SECTION CONTENT -->
+      <section class="flex-1 p-4 md:p-8 no-print">
+
+        <!-- ==================== TAB 1: DASHBOARD ==================== -->
+        <div id="tab-dashboard" class="tab-content space-y-6">
+          <!-- Widget Ringkasan Angka -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Antrean & Proses</span>
+                <h3 id="statProses" class="text-3xl font-extrabold text-slate-800 dark:text-white mt-1">0</h3>
+              </div>
+              <div class="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center text-xl">
+                <i class="fas fa-spinner fa-spin"></i>
+              </div>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Selesai (Belum Diambil)</span>
+                <h3 id="statSelesai" class="text-3xl font-extrabold text-slate-800 dark:text-white mt-1">0</h3>
+              </div>
+              <div class="w-12 h-12 bg-brand-500/10 text-brand-500 rounded-xl flex items-center justify-center text-xl">
+                <i class="fas fa-check-double"></i>
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Belum Lunas</span>
+                <h3 id="statBelumLunas" class="text-3xl font-extrabold text-red-500 mt-1">0</h3>
+              </div>
+              <div class="w-12 h-12 bg-red-500/10 text-red-500 rounded-xl flex items-center justify-center text-xl">
+                <i class="fas fa-file-invoice-dollar"></i>
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Pendapatan</span>
+                <h3 id="statPendapatan" class="text-2xl font-black text-emerald-500 mt-1">Rp 0</h3>
+              </div>
+              <div class="w-12 h-12 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center text-xl">
+                <i class="fas fa-wallet"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Alur Kerja -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Form Mini Cuci Kilat -->
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 lg:col-span-2 space-y-4">
+              <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-magic text-brand-500"></i> Alur Kerja Sistem Laundry</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center mt-2">
+                <div class="p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-100 dark:border-slate-700">
+                  <div class="w-8 h-8 bg-brand-500 text-white rounded-full flex items-center justify-center mx-auto font-bold mb-2">1</div>
+                  <h4 class="font-bold text-sm">Input Transaksi</h4>
+                  <p class="text-xs text-slate-400 mt-1">Masukkan berat/unit & pilih jenis paket laundry.</p>
+                </div>
+                <div class="p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-100 dark:border-slate-700">
+                  <div class="w-8 h-8 bg-amber-500 text-white rounded-full flex items-center justify-center mx-auto font-bold mb-2">2</div>
+                  <h4 class="font-bold text-sm">Cetak Struk & Cuci</h4>
+                  <p class="text-xs text-slate-400 mt-1">Cetak thermal 58mm untuk disematkan pada baju/unit.</p>
+                </div>
+                <div class="p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-100 dark:border-slate-700">
+                  <div class="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto font-bold mb-2">3</div>
+                  <h4 class="font-bold text-sm">Kirim Notifikasi WA</h4>
+                  <p class="text-xs text-slate-400 mt-1">Kirim pesan WhatsApp otomatis ketika proses selesai.</p>
+                </div>
+              </div>
+              <div class="pt-4 flex justify-end gap-3">
+                <button onclick="switchTab('transaksi-baru')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold rounded-xl transition-all shadow-md">
+                  <i class="fas fa-plus mr-1"></i> Mulai Transaksi Baru
+                </button>
+              </div>
+            </div>
+
+            <!-- Petunjuk Penggunaan Cepat -->
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 space-y-4">
+              <h3 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-info-circle text-cyan-500"></i> Info & Dukungan</h3>
+              <div class="space-y-3 text-sm">
+                <div class="flex gap-3">
+                  <i class="fas fa-print text-slate-400 mt-1"></i>
+                  <p class="text-xs">Pastikan printer thermal 58mm Anda sudah terhubung ke PC/Android sebelum menekan tombol <strong>Cetak Struk</strong>.</p>
+                </div>
+                <div class="flex gap-3">
+                  <i class="fab fa-whatsapp text-emerald-500 mt-1"></i>
+                  <p class="text-xs">Nomor WhatsApp pelanggan diinput menggunakan format standar Indonesia (misal: <code>08123456789</code> atau <code>628123456789</code>).</p>
+                </div>
+                <div class="flex gap-3">
+                  <i class="fas fa-database text-blue-400 mt-1"></i>
+                  <p class="text-xs">Sistem database tersinkronisasi asinkronus ke Google Sheets milik akun Anda secara aman.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- ==================== TAB 2: INPUT TRANSAKSI BARU ==================== -->
+        <div id="tab-transaksi-baru" class="tab-content hidden">
+          <div class="max-w-3xl mx-auto bg-white dark:bg-slate-800 p-6 md:p-8 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/80">
+            <h3 class="text-xl font-extrabold text-slate-800 dark:text-white mb-6 flex items-center gap-2 border-b pb-4 border-slate-100 dark:border-slate-700">
+              <i class="fas fa-cart-plus text-brand-500"></i> Form Input Transaksi Cucian
+            </h3>
+            
+            <form id="laundryForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
+              <input type="hidden" id="form-id"> <!-- Menyimpan ID untuk Edit Mode -->
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Nama Pelanggan -->
+                <div>
+                  <label class="block text-sm font-bold text-slate-500 mb-2">Nama Pelanggan <span class="text-red-500">*</span></label>
+                  <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fas fa-user"></i></span>
+                    <input type="text" id="form-pelanggan" required placeholder="Contoh: Budi Santoso" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                  </div>
+                </div>
+
+                <!-- Nomor WhatsApp -->
+                <div>
+                  <label class="block text-sm font-bold text-slate-500 mb-2">No. WhatsApp <span class="text-red-500">*</span></label>
+                  <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fab fa-whatsapp"></i></span>
+                    <input type="tel" id="form-whatsapp" required placeholder="Contoh: 081234567890" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Jenis Layanan / Paket -->
+                <div>
+                  <label class="block text-sm font-bold text-slate-500 mb-2">Paket Layanan <span class="text-red-500">*</span></label>
+                  <select id="form-layanan" onchange="calculatePrice()" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                    <option value="Cuci Kering Reguler">Cuci Kering Reguler</option>
+                    <option value="Cuci Kering Ekspres">Cuci Kering Ekspres</option>
+                    <option value="Cuci Setrika Reguler">Cuci Setrika Reguler</option>
+                    <option value="Cuci Setrika Ekspres">Cuci Setrika Ekspres</option>
+                    <option value="Setrika Saja">Setrika Saja</option>
+                  </select>
+                </div>
+
+                <!-- Berat atau Unit -->
+                <div>
+                  <label class="block text-sm font-bold text-slate-500 mb-2">Berat / Qty (Kg/Unit) <span class="text-red-500">*</span></label>
+                  <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fas fa-weight-hanging"></i></span>
+                    <input type="number" step="0.1" id="form-berat" required oninput="calculatePrice()" value="1.0" class="w-full pl-10 pr-12 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                    <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-sm font-bold text-slate-400">Kg/Pcs</span>
+                  </div>
+                </div>
+
+                <!-- Total Biaya (Kalkulasi Otomatis) -->
+                <div>
+                  <label class="block text-sm font-bold text-slate-500 mb-2">Total Biaya</label>
+                  <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-bold">Rp</span>
+                    <input type="number" id="form-total" readonly class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 font-extrabold text-brand-600 dark:text-brand-400 outline-none cursor-not-allowed">
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Pembayaran / DP -->
+                <div>
+                  <label class="block text-sm font-bold text-slate-500 mb-2">Jumlah Bayar / DP</label>
+                  <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-bold">Rp</span>
+                    <input type="number" id="form-dp" oninput="validatePaymentStatus()" value="0" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                  </div>
+                </div>
+
+                <!-- Status Pembayaran -->
+                <div>
+                  <label class="block text-sm font-bold text-slate-500 mb-2">Status Pembayaran</label>
+                  <select id="form-status-bayar" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                    <option value="Belum Lunas">Belum Lunas</option>
+                    <option value="DP (Uang Muka)">DP (Uang Muka)</option>
+                    <option value="Lunas">Lunas</option>
+                  </select>
+                </div>
+
+                <!-- Status Proses Cucian -->
+                <div>
+                  <label class="block text-sm font-bold text-slate-500 mb-2">Status Pengerjaan</label>
+                  <select id="form-status-proses" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                    <option value="Antrean">Antrean</option>
+                    <option value="Proses">Proses Cuci</option>
+                    <option value="Selesai">Selesai</option>
+                    <option value="Diambil">Sudah Diambil</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Catatan Tambahan -->
+              <div>
+                <label class="block text-sm font-bold text-slate-500 mb-2">Catatan Khusus (Opsional)</label>
+                <textarea id="form-catatan" rows="2" placeholder="Contoh: baju putih pisahkan, luntur, minta setrika pewangi extra" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all"></textarea>
+              </div>
+
+              <!-- Tombol Simpan -->
+              <div class="flex gap-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+                <button type="button" onclick="cancelForm()" class="w-1/2 py-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-all text-center">
+                  Batal / Reset
+                </button>
+                <button type="submit" class="w-1/2 py-3 bg-gradient-to-r from-brand-600 to-cyan-500 text-white font-bold rounded-xl hover:from-brand-700 hover:to-cyan-600 transition-all shadow-md">
+                  <i class="fas fa-save mr-1"></i> Simpan Transaksi
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+
+        <!-- ==================== TAB 3: DAFTAR TRANSAKSI ==================== -->
+        <div id="tab-daftar-transaksi" class="tab-content hidden space-y-6">
+          
+          <!-- Pencarian & Filter -->
+          <div class="bg-white dark:bg-slate-800 p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <!-- Pencarian -->
+            <div class="relative w-full md:w-96">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fas fa-search"></i></span>
+              <input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="Cari nama pelanggan, nomor nota, atau HP..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition-all">
+            </div>
+
+            <!-- Filter Status -->
+            <div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+              <button onclick="filterStatus('Semua')" id="filterBtn-Semua" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-brand-500 text-white shadow-sm shrink-0">Semua</button>
+              <button onclick="filterStatus('Antrean')" id="filterBtn-Antrean" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 shrink-0">Antrean</button>
+              <button onclick="filterStatus('Proses')" id="filterBtn-Proses" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 shrink-0">Proses</button>
+              <button onclick="filterStatus('Selesai')" id="filterBtn-Selesai" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 shrink-0">Selesai</button>
+              <button onclick="filterStatus('Diambil')" id="filterBtn-Diambil" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 shrink-0">Diambil</button>
+            </div>
+          </div>
+
+          <!-- Tabel Responsif -->
+          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse" id="transaksiTable">
+                <thead>
+                  <tr class="bg-slate-50 dark:bg-slate-700/40 text-xs font-bold uppercase text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700">
+                    <th class="p-4 text-center">Nota</th>
+                    <th class="p-4">Masuk</th>
+                    <th class="p-4">Pelanggan</th>
+                    <th class="p-4">Layanan / Berat</th>
+                    <th class="p-4">Total</th>
+                    <th class="p-4 text-center">Pengerjaan</th>
+                    <th class="p-4 text-center">Bayar</th>
+                    <th class="p-4 text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-sm" id="transaksiTableBody">
+                  <!-- Generated dynamically via JS -->
+                  <tr>
+                    <td colspan="8" class="p-8 text-center text-slate-400">Sedang memuat data transaksi...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- ==================== TAB 4: PENGATURAN ==================== -->
+        <div id="tab-pengaturan" class="tab-content hidden">
+          <div class="max-w-2xl mx-auto bg-white dark:bg-slate-800 p-6 md:p-8 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/80">
+            <h3 class="text-xl font-extrabold text-slate-800 dark:text-white mb-6 flex items-center gap-2 border-b pb-4 border-slate-100 dark:border-slate-700">
+              <i class="fas fa-cog text-brand-500"></i> Pengaturan Toko & Harga
+            </h3>
+
+            <form id="settingsForm" onsubmit="handleSettingsSubmit(event)" class="space-y-6">
+              
+              <!-- Fitur Upload Logo Baru -->
+              <div class="bg-slate-50 dark:bg-slate-700/30 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-700">
+                <label class="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-2">Logo Perusahaan</label>
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                  <!-- Preview Frame -->
+                  <div id="settings-logo-preview" class="w-20 h-20 bg-slate-100 dark:bg-slate-700 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-300 dark:border-slate-600 shrink-0 shadow-inner">
+                    <i class="fas fa-image text-slate-400 text-2xl"></i>
+                  </div>
+                  <div class="flex-1 text-center sm:text-left">
+                    <input type="file" id="cfg-logo-input" accept="image/*" onchange="handleLogoUpload(event)" class="hidden">
+                    <button type="button" onclick="document.getElementById('cfg-logo-input').click()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl transition-all shadow-md">
+                      <i class="fas fa-upload mr-1.5"></i> Unggah File Gambar
+                    </button>
+                    <p class="text-[10px] text-slate-400 mt-1.5">Mendukung format PNG atau JPG. Logo akan otomatis dikompres ke ukuran persegi 120x120 piksel.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Nama Laundry -->
+                <div>
+                  <label class="block text-sm font-bold text-slate-500 mb-2">Nama Laundry</label>
+                  <input type="text" id="cfg-nama" required class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                </div>
+
+                <!-- Telepon Toko -->
+                <div>
+                  <label class="block text-sm font-bold text-slate-500 mb-2">Telepon WA (Dengan Kode Negara)</label>
+                  <input type="text" id="cfg-telepon" required placeholder="Contoh: 628123456789" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                </div>
+              </div>
+
+              <!-- Alamat Laundry -->
+              <div>
+                <label class="block text-sm font-bold text-slate-500 mb-2">Alamat Laundry</label>
+                <textarea id="cfg-alamat" required rows="2" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all"></textarea>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Tarif Reguler -->
+                <div>
+                  <label class="block text-sm font-bold text-slate-500 mb-2">Tarif Reguler / Kg (Rp)</label>
+                  <input type="number" id="cfg-tarif-reguler" required class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                </div>
+
+                <!-- Tarif Ekspres -->
+                <div>
+                  <label class="block text-sm font-bold text-slate-500 mb-2">Tarif Ekspres / Kg (Rp)</label>
+                  <input type="number" id="cfg-tarif-ekspres" required class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none transition-all">
+                </div>
+              </div>
+
+              <!-- Tombol Simpan Config -->
+              <div class="pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end">
+                <button type="submit" class="px-8 py-3 bg-gradient-to-r from-brand-600 to-cyan-500 text-white font-bold rounded-xl hover:from-brand-700 hover:to-cyan-600 transition-all shadow-md">
+                  <i class="fas fa-save mr-1"></i> Simpan Pengaturan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+
+  <!-- ==================== DIALOG / TOAST MODAL ALERTS ==================== -->
+  <div id="toast" class="hidden fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-4 bg-emerald-500 text-white rounded-2xl shadow-2xl transition-all duration-300">
+    <span id="toastIcon"><i class="fas fa-check-circle text-lg"></i></span>
+    <span id="toastMsg" class="font-bold text-sm">Aksi Berhasil!</span>
+  </div>
+
+
+  <!-- ==================== RECEIPT PREVIEW MODAL ==================== -->
+  <div id="receiptPreviewModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md px-4">
+    <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-2xl max-w-sm w-full border border-slate-200 dark:border-slate-700 flex flex-col max-h-[90vh]">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700 mb-4">
+        <h3 class="text-md font-extrabold flex items-center gap-2"><i class="fas fa-file-invoice text-brand-500"></i> Pratinjau Cetak Struk</h3>
+        <button onclick="closeReceiptPreview()" class="text-slate-400 hover:text-red-500"><i class="fas fa-times-circle text-lg"></i></button>
+      </div>
+      
+      <!-- Simulasi Kertas Struk Thermal 58mm -->
+      <div class="flex-1 overflow-y-auto bg-slate-100 p-4 rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 shadow-inner text-slate-900 font-mono text-[11px] mb-4">
+        <div class="bg-white p-4 shadow-sm rounded border border-slate-200 text-black leading-relaxed" id="receiptModalContent">
+          <!-- Konten Struk Dirender di Sini -->
+        </div>
+      </div>
+      
+      <!-- Tombol Aksi Cetak & Batal -->
+      <div class="flex gap-3">
+        <button onclick="closeReceiptPreview()" class="w-1/2 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-xs hover:bg-slate-200 dark:hover:bg-slate-600 transition-all text-center">
+          Tutup
+        </button>
+        <button onclick="triggerActualPrint()" class="w-1/2 py-2.5 bg-gradient-to-r from-brand-600 to-cyan-500 text-white font-bold rounded-xl text-xs hover:from-brand-700 hover:to-cyan-600 transition-all shadow-md">
+          <i class="fas fa-print mr-1.5"></i> Cetak Sekarang
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==================== AREA STRUK THERMAL (TERSEMBUNYI DARI SCREEN SEWAKTU PRINT) ==================== -->
+  <div id="thermalReceipt" class="hidden">
+    <!-- Generated dinamis untuk dicetak secara fisik -->
+  </div>
+
+
+  <!-- ==================== JAVASCRIPT LOGIC SYSTEM ==================== -->
+  <script>
+    // State Aplikasi
+    let appState = {
+      activeTab: 'dashboard',
+      darkMode: false,
+      transaksi: [],
+      config: {
+        Nama_Laundry: 'Clean & Glow Laundry',
+        Alamat: 'Jl. Sukacita No. 12, Samarinda',
+        Telepon: '6281234567890',
+        Tarif_Kg_Reguler: 6000,
+        Tarif_Kg_Ekspres: 10000,
+        Pin_Akses: '1234',
+        Logo_Base64: ''
+      },
+      filterStatus: 'Semua',
+      isGoogleAppsScript: false,
+      activePrintId: null
+    };
+
+    // Fungsi Inisialisasi Utama
+    window.onload = function() {
+      // Periksa apakah berjalan di lingkungan Google Apps Script
+      appState.isGoogleAppsScript = (typeof google !== 'undefined' && google.script && google.script.run);
+      
+      initClock();
+      loadThemeFromLocalStorage();
+      loadApplicationData();
+    };
+
+    // Live Jam, Hari dan Tanggal Aktif (Indonesian Format)
+    function initClock() {
+      const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+      setInterval(() => {
+        const d = new Date();
+        const dayName = dayNames[d.getDay()];
+        const dayNum = d.getDate();
+        const monthName = monthNames[d.getMonth()];
+        const year = d.getFullYear();
+        
+        const hrs = String(d.getHours()).padStart(2, '0');
+        const mins = String(d.getMinutes()).padStart(2, '0');
+        const secs = String(d.getSeconds()).padStart(2, '0');
+
+        const dateStr = `${dayName}, ${dayNum} ${monthName} ${year}`;
+        const clockStr = `${hrs}:${mins}:${secs} WIB`;
+
+        // Update UI Desktop
+        document.getElementById('liveDayDate').innerText = dateStr;
+        document.getElementById('liveClock').innerText = clockStr;
+
+        // Update UI Mobile
+        document.getElementById('liveMobileDate').innerText = dateStr;
+        document.getElementById('liveMobileTime').innerText = `${hrs}:${mins}:${secs}`;
+      }, 1000);
+    }
+
+    // Memuat Data Laundry
+    function loadApplicationData() {
+      if (appState.isGoogleAppsScript) {
+        // Mode Online Google Apps Script
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === 'success') {
+              appState.transaksi = response.transaksi || [];
+              appState.config = response.config || appState.config;
+              applyConfigToUI();
+              renderTransaksiTable();
+              updateDashboardStats();
+            } else {
+              showToast("Gagal memuat data dari Spreadsheet", "error");
+            }
+          })
+          .withFailureHandler(function(err) {
+            showToast("Koneksi gagal: " + err, "error");
+          })
+          .getInitialData();
+      } else {
+        // Fallback ke LocalStorage (Untuk preview langsung di sandbox browser)
+        console.warn("Google Apps Script API tidak terdeteksi. Berjalan di Mode Offline.");
+        const localT = localStorage.getItem('CG_Transaksi');
+        const localC = localStorage.getItem('CG_Config');
+        
+        if (localT) appState.transaksi = JSON.parse(localT);
+        if (localC) appState.config = JSON.parse(localC);
+        
+        applyConfigToUI();
+        renderTransaksiTable();
+        updateDashboardStats();
+      }
+    }
+
+    // Menyinkronkan Pengaturan ke Elemen UI HTML
+    function applyConfigToUI() {
+      document.getElementById('shopTitle').innerText = appState.config.Nama_Laundry;
+      document.getElementById('sidebarShopTitle').innerText = appState.config.Nama_Laundry;
+      document.getElementById('shopAddress').innerText = appState.config.Alamat;
+
+      // Isi input formulir pengaturan
+      document.getElementById('cfg-nama').value = appState.config.Nama_Laundry;
+      document.getElementById('cfg-telepon').value = appState.config.Telepon;
+      document.getElementById('cfg-alamat').value = appState.config.Alamat;
+      document.getElementById('cfg-tarif-reguler').value = appState.config.Tarif_Kg_Reguler;
+      document.getElementById('cfg-tarif-ekspres').value = appState.config.Tarif_Kg_Ekspres;
+
+      updateLogoDisplays();
+    }
+
+    // UPDATE LOGO DISPLAYS DI SEMUA MODUL
+    function updateLogoDisplays() {
+      const logoContainerSidebar = document.getElementById('sidebar-logo-container');
+      const logoContainerHeader = document.getElementById('header-logo-container');
+      const logoPreviewSettings = document.getElementById('settings-logo-preview');
+
+      const logoContent = appState.config.Logo_Base64 
+        ? `<img src="${appState.config.Logo_Base64}" class="w-full h-full object-cover rounded-xl">` 
+        : `<i class="fas fa-soap text-xl"></i>`;
+
+      const logoPreviewContent = appState.config.Logo_Base64 
+        ? `<img src="${appState.config.Logo_Base64}" class="w-full h-full object-cover rounded-2xl">` 
+        : `<i class="fas fa-image text-slate-400 text-2xl"></i>`;
+
+      if (logoContainerSidebar) logoContainerSidebar.innerHTML = logoContent;
+      if (logoContainerHeader) logoContainerHeader.innerHTML = logoContent;
+      if (logoPreviewSettings) logoPreviewSettings.innerHTML = logoPreviewContent;
+    }
+
+    // PROSES UPLOAD LOGO DENGAN RESOLUSI & KOMPRESI OPTIMAL
+    function handleLogoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Mengubah gambar menjadi persegi 120px x 120px
+          const size = 120;
+          canvas.width = size;
+          canvas.height = size;
+          
+          // Kalkulasi crop tengah
+          let sx = 0, sy = 0, sWidth = img.width, sHeight = img.height;
+          if (img.width > img.height) {
+            sx = (img.width - img.height) / 2;
+            sWidth = img.height;
+          } else {
+            sy = (img.height - img.width) / 2;
+            sHeight = img.width;
+          }
+          
+          ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, size, size);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+          
+          // Simpan ke state
+          appState.config.Logo_Base64 = compressedBase64;
+          updateLogoDisplays();
+          showToast("Logo berhasil diunggah!", "success");
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Menyimpan Data
+    function persistData(successCallback) {
+      if (appState.isGoogleAppsScript) {
+        if (successCallback) successCallback();
+      } else {
+        localStorage.setItem('CG_Transaksi', JSON.stringify(appState.transaksi));
+        localStorage.setItem('CG_Config', JSON.stringify(appState.config));
+        if (successCallback) successCallback();
+      }
+    }
+
+    // MODE TERANG & GELAP (DARK MODE ACCESSIBILITY)
+    function toggleDarkMode() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('themeIcon');
+      
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        themeIcon.className = 'fas fa-moon text-lg';
+        localStorage.setItem('CG_Theme', 'light');
+      } else {
+        html.classList.add('dark');
+        themeIcon.className = 'fas fa-sun text-lg text-amber-400';
+        localStorage.setItem('CG_Theme', 'dark');
+      }
+    }
+
+    function loadThemeFromLocalStorage() {
+      const savedTheme = localStorage.getItem('CG_Theme');
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('themeIcon');
+      
+      if (savedTheme === 'dark') {
+        html.classList.add('dark');
+        themeIcon.className = 'fas fa-sun text-lg text-amber-400';
+      } else {
+        html.classList.remove('dark');
+        themeIcon.className = 'fas fa-moon text-lg';
+      }
+    }
+
+    // MENANGANI NAVIGASI TAB MENU
+    function switchTab(tabId) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      // Show target tab
+      document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+      // Reset menu button styles
+      const navButtons = ['dashboard', 'transaksi-baru', 'daftar-transaksi', 'pengaturan'];
+      navButtons.forEach(btn => {
+        const el = document.getElementById('nav-' + btn);
+        if (btn === tabId) {
+          el.className = "flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all text-brand-600 bg-brand-50 dark:text-brand-400 dark:bg-slate-700/50 min-w-max md:w-full";
+        } else {
+          el.className = "flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/30 min-w-max md:w-full";
+        }
+      });
+
+      appState.activeTab = tabId;
+    }
+
+    // MENGHITUNG BIAYA LAUNDRY SECARA DINAMIS
+    function calculatePrice() {
+      const layanan = document.getElementById('form-layanan').value;
+      const berat = Number(document.getElementById('form-berat').value || 0);
+      let tarif = Number(appState.config.Tarif_Kg_Reguler || 6000); // default
+
+      if (layanan.includes('Ekspres')) {
+        tarif = Number(appState.config.Tarif_Kg_Ekspres || 10000);
+      } else if (layanan.includes('Setrika Saja')) {
+        tarif = Number(appState.config.Tarif_Kg_Reguler || 6000) * 0.8; // Setrika saja lebih murah 20%
+      } else if (layanan.includes('Cuci Setrika Reguler')) {
+        tarif = Number(appState.config.Tarif_Kg_Reguler || 6000) * 1.3; // Lebih mahal 30%
+      }
+
+      const total = Math.round(tarif * berat);
+      document.getElementById('form-total').value = total;
+
+      validatePaymentStatus();
+    }
+
+    function validatePaymentStatus() {
+      const total = Number(document.getElementById('form-total').value || 0);
+      const dp = Number(document.getElementById('form-dp').value || 0);
+      const selectStatus = document.getElementById('form-status-bayar');
+
+      if (dp >= total && total > 0) {
+        selectStatus.value = "Lunas";
+      } else if (dp > 0 && dp < total) {
+        selectStatus.value = "DP (Uang Muka)";
+      } else {
+        selectStatus.value = "Belum Lunas";
+      }
+    }
+
+    // MENYIMPAN TRANSAKSI DARI FORM (CREATE / UPDATE)
+    function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const formatPhone = (phone) => {
+        let cleaned = phone.replace(/\D/g, ''); // Ambil digit angka saja
+        if (cleaned.startsWith('0')) {
+          cleaned = '62' + cleaned.substring(1);
+        }
+        return cleaned;
+      };
+
+      const transId = document.getElementById('form-id').value || 'CG-' + Date.now().toString().substring(7);
+      const dateIn = document.getElementById('form-id').value ? undefined : new Date().toISOString().substring(0, 16).replace('T', ' ');
+
+      const transData = {
+        ID_Transaksi: transId,
+        Tanggal_Masuk: dateIn || new Date().toISOString().substring(0, 16).replace('T', ' '),
+        Nama_Pelanggan: document.getElementById('form-pelanggan').value,
+        No_WhatsApp: formatPhone(document.getElementById('form-whatsapp').value),
+        Layanan: document.getElementById('form-layanan').value,
+        Berat_Unit: Number(document.getElementById('form-berat').value),
+        Total_Harga: Number(document.getElementById('form-total').value),
+        DP_Bayar: Number(document.getElementById('form-dp').value),
+        Status_Bayar: document.getElementById('form-status-bayar').value,
+        Status_Proses: document.getElementById('form-status-proses').value,
+        Catatan: document.getElementById('form-catatan').value,
+        Tanggal_Selesai: document.getElementById('form-status-proses').value === 'Selesai' ? new Date().toISOString().substring(0, 10) : ''
+      };
+
+      if (appState.isGoogleAppsScript) {
+        showToast("Mengirim data ke Google Sheets...", "info");
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === 'success') {
+              showToast("Berhasil menyimpan transaksi!", "success");
+              loadApplicationData();
+              cancelForm();
+              switchTab('daftar-transaksi');
+            } else {
+              showToast("Error: " + response.message, "error");
+            }
+          })
+          .withFailureHandler(function(err) {
+            showToast("Gagal menyimpan ke Sheet: " + err, "error");
+          })
+          .saveTransaksi(transData);
+      } else {
+        const existingIdx = appState.transaksi.findIndex(t => t.ID_Transaksi === transData.ID_Transaksi);
+        if (existingIdx > -1) {
+          appState.transaksi[existingIdx] = transData;
+        } else {
+          appState.transaksi.unshift(transData);
+        }
+        persistData(() => {
+          showToast("Berhasil menyimpan transaksi (Lokal SIM)!", "success");
+          renderTransaksiTable();
+          updateDashboardStats();
+          cancelForm();
+          switchTab('daftar-transaksi');
+        });
+      }
+    }
+
+    function cancelForm() {
+      document.getElementById('laundryForm').reset();
+      document.getElementById('form-id').value = '';
+      document.getElementById('form-berat').value = "1.0";
+      document.getElementById('form-total').value = "0";
+      document.getElementById('form-dp').value = "0";
+    }
+
+    // EDIT TRANSAKSI
+    function editTransaksi(id) {
+      const item = appState.transaksi.find(t => t.ID_Transaksi === id);
+      if (!item) return;
+
+      document.getElementById('form-id').value = item.ID_Transaksi;
+      document.getElementById('form-pelanggan').value = item.Nama_Pelanggan;
+      document.getElementById('form-whatsapp').value = item.No_WhatsApp;
+      document.getElementById('form-layanan').value = item.Layanan;
+      document.getElementById('form-berat').value = item.Berat_Unit;
+      document.getElementById('form-total').value = item.Total_Harga;
+      document.getElementById('form-dp').value = item.DP_Bayar;
+      document.getElementById('form-status-bayar').value = item.Status_Bayar;
+      document.getElementById('form-status-proses').value = item.Status_Proses;
+      document.getElementById('form-catatan').value = item.Catatan || '';
+
+      switchTab('transaksi-baru');
+    }
+
+    // UPDATE STATUS LANGSUNG DARI TABEL
+    function updateSingleStatus(id, selectEl) {
+      const item = appState.transaksi.find(t => t.ID_Transaksi === id);
+      if (!item) return;
+
+      item.Status_Proses = selectEl.value;
+      if (selectEl.value === 'Selesai') {
+        item.Tanggal_Selesai = new Date().toISOString().substring(0, 10);
+      }
+
+      if (appState.isGoogleAppsScript) {
+        google.script.run
+          .withSuccessHandler(function() {
+            showToast("Status proses diperbarui!", "success");
+            loadApplicationData();
+          })
+          .saveTransaksi(item);
+      } else {
+        persistData(() => {
+          showToast("Status proses diperbarui (Lokal)!", "success");
+          updateDashboardStats();
+          renderTransaksiTable();
+        });
+      }
+    }
+
+    // UPDATE STATUS BAYAR LANGSUNG DARI TABEL
+    function updatePaymentStatusDirect(id, selectEl) {
+      const item = appState.transaksi.find(t => t.ID_Transaksi === id);
+      if (!item) return;
+
+      item.Status_Bayar = selectEl.value;
+      if (selectEl.value === 'Lunas') {
+        item.DP_Bayar = item.Total_Harga;
+      }
+
+      if (appState.isGoogleAppsScript) {
+        google.script.run
+          .withSuccessHandler(function() {
+            showToast("Status pembayaran diperbarui!", "success");
+            loadApplicationData();
+          })
+          .saveTransaksi(item);
+      } else {
+        persistData(() => {
+          showToast("Status pembayaran diperbarui (Lokal)!", "success");
+          updateDashboardStats();
+          renderTransaksiTable();
+        });
+      }
+    }
+
+    // HAPUS TRANSAKSI
+    function triggerDelete(id) {
+      const konfirmasi = confirm("Apakah Anda yakin ingin menghapus transaksi #" + id + "?");
+      if (!konfirmasi) return;
+
+      if (appState.isGoogleAppsScript) {
+        showToast("Sedang menghapus...", "info");
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === 'success') {
+              showToast("Berhasil dihapus!", "success");
+              loadApplicationData();
+            } else {
+              showToast(response.message, "error");
+            }
+          })
+          .deleteTransaksi(id);
+      } else {
+        appState.transaksi = appState.transaksi.filter(t => t.ID_Transaksi !== id);
+        persistData(() => {
+          showToast("Berhasil dihapus dari lokal sim!", "success");
+          renderTransaksiTable();
+          updateDashboardStats();
+        });
+      }
+    }
+
+    // RENDER TABEL TRANSAKSI LAUNDRY
+    function renderTransaksiTable() {
+      const tbody = document.getElementById('transaksiTableBody');
+      tbody.innerHTML = '';
+
+      let filteredData = appState.transaksi;
+      if (appState.filterStatus !== 'Semua') {
+        filteredData = appState.transaksi.filter(t => t.Status_Proses === appState.filterStatus);
+      }
+
+      if (filteredData.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="p-8 text-center text-slate-400 dark:text-slate-500 font-medium">
+              <i class="fas fa-folder-open text-3xl mb-2 block"></i> Tidak ada transaksi yang sesuai.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      filteredData.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors border-b border-slate-100 dark:border-slate-700/60";
+        tr.innerHTML = `
+          <td class="p-4 text-center font-black text-xs text-brand-600 dark:text-brand-400">#${item.ID_Transaksi}</td>
+          <td class="p-4 text-xs font-mono text-slate-500">${item.Tanggal_Masuk}</td>
+          <td class="p-4">
+            <div class="font-bold">${item.Nama_Pelanggan}</div>
+            <div class="text-xs text-slate-400"><i class="fab fa-whatsapp text-emerald-500 mr-0.5"></i> ${item.No_WhatsApp}</div>
+          </td>
+          <td class="p-4">
+            <div class="font-semibold text-xs text-slate-600 dark:text-slate-300">${item.Layanan}</div>
+            <div class="text-xs font-bold text-slate-400 mt-0.5">${item.Berat_Unit || item['Berat/Unit'] || 0} Kg/Pcs</div>
+          </td>
+          <td class="p-4">
+            <div class="font-extrabold text-slate-800 dark:text-slate-200">Rp ${Number(item.Total_Harga).toLocaleString()}</div>
+            ${item.DP_Bayar > 0 && item.DP_Bayar < item.Total_Harga ? `<div class="text-[10px] font-bold text-blue-500">DP: Rp ${Number(item.DP_Bayar).toLocaleString()}</div>` : ''}
+          </td>
+          
+          <td class="p-4 text-center">
+            <select onchange="updateSingleStatus('${item.ID_Transaksi}', this)" class="text-xs font-bold rounded-lg px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:ring-1 focus:ring-brand-500 border-none outline-none">
+              <option value="Antrean" ${item.Status_Proses === 'Antrean' ? 'selected' : ''}>Antrean</option>
+              <option value="Proses" ${item.Status_Proses === 'Proses' ? 'selected' : ''}>Proses</option>
+              <option value="Selesai" ${item.Status_Proses === 'Selesai' ? 'selected' : ''}>Selesai</option>
+              <option value="Diambil" ${item.Status_Proses === 'Diambil' ? 'selected' : ''}>Diambil</option>
+            </select>
+          </td>
+
+          <td class="p-4 text-center">
+            <select onchange="updatePaymentStatusDirect('${item.ID_Transaksi}', this)" class="text-xs font-bold rounded-lg px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 focus:ring-1 focus:ring-brand-500 border-none outline-none">
+              <option value="Belum Lunas" ${item.Status_Bayar === 'Belum Lunas' ? 'selected' : ''}>Belum Lunas</option>
+              <option value="DP (Uang Muka)" ${item.Status_Bayar === 'DP (Uang Muka)' ? 'selected' : ''}>DP (Uang Muka)</option>
+              <option value="Lunas" ${item.Status_Bayar === 'Lunas' ? 'selected' : ''}>Lunas</option>
+            </select>
+          </td>
+
+          <td class="p-4">
+            <div class="flex items-center justify-center gap-1">
+              <!-- Preview Cetak Thermal -->
+              <button onclick="previewStruk('${item.ID_Transaksi}')" class="p-2 bg-slate-100 hover:bg-brand-500 hover:text-white rounded-lg text-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-brand-500 transition-all" title="Pratinjau Struk">
+                <i class="fas fa-print"></i>
+              </button>
+              <!-- Kirim WhatsApp -->
+              <button onclick="sendWA('${item.ID_Transaksi}')" class="p-2 bg-emerald-100 hover:bg-emerald-500 hover:text-white rounded-lg text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 dark:hover:bg-emerald-500 transition-all" title="Kirim Pesan WhatsApp">
+                <i class="fab fa-whatsapp text-md font-bold"></i>
+              </button>
+              <!-- Edit -->
+              <button onclick="editTransaksi('${item.ID_Transaksi}')" class="p-2 bg-indigo-100 hover:bg-indigo-500 hover:text-white rounded-lg text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 dark:hover:bg-indigo-500 transition-all" title="Ubah Data">
+                <i class="fas fa-edit"></i>
+              </button>
+              <!-- Hapus -->
+              <button onclick="triggerDelete('${item.ID_Transaksi}')" class="p-2 bg-red-100 hover:bg-red-500 hover:text-white rounded-lg text-red-600 dark:bg-red-950/50 dark:text-red-400 dark:hover:bg-red-500 transition-all" title="Hapus Transaksi">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // UPDATE STATISTIK DASHBOARD
+    function updateDashboardStats() {
+      let proses = 0;
+      let selesai = 0;
+      let belumLunas = 0;
+      let totalUang = 0;
+
+      appState.transaksi.forEach(t => {
+        if (t.Status_Proses === 'Antrean' || t.Status_Proses === 'Proses') proses++;
+        if (t.Status_Proses === 'Selesai') selesai++;
+        if (t.Status_Bayar !== 'Lunas') belumLunas++;
+        totalUang += Number(t.DP_Bayar || 0);
+      });
+
+      document.getElementById('statProses').innerText = proses;
+      document.getElementById('statSelesai').innerText = selesai;
+      document.getElementById('statBelumLunas').innerText = belumLunas;
+      document.getElementById('statPendapatan').innerText = "Rp " + totalUang.toLocaleString();
+    }
+
+    // FILTER CARI TABEL
+    function filterTable() {
+      const q = document.getElementById('tableSearch').value.toLowerCase();
+      const rows = document.querySelectorAll('#transaksiTableBody tr');
+
+      rows.forEach(row => {
+        if (row.cells.length < 3) return;
+        const text = row.innerText.toLowerCase();
+        if (text.includes(q)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    }
+
+    // FILTER STATUS TABEL BUTTON
+    function filterStatus(status) {
+      appState.filterStatus = status;
+      
+      const buttons = ['Semua', 'Antrean', 'Proses', 'Selesai', 'Diambil'];
+      buttons.forEach(btn => {
+        const el = document.getElementById('filterBtn-' + btn);
+        if (btn === status) {
+          el.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-brand-500 text-white shadow-sm shrink-0";
+        } else {
+          el.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 shrink-0";
+        }
+      });
+
+      renderTransaksiTable();
+    }
+
+    // SIMPAN PENGATURAN BARU
+    function handleSettingsSubmit(e) {
+      e.preventDefault();
+
+      const updated = {
+        Nama_Laundry: document.getElementById('cfg-nama').value,
+        Telepon: document.getElementById('cfg-telepon').value,
+        Alamat: document.getElementById('cfg-alamat').value,
+        Tarif_Kg_Reguler: Number(document.getElementById('cfg-tarif-reguler').value),
+        Tarif_Kg_Ekspres: Number(document.getElementById('cfg-tarif-ekspres').value),
+        Logo_Base64: appState.config.Logo_Base64 || ''
+      };
+
+      if (appState.isGoogleAppsScript) {
+        showToast("Memperbarui konfigurasi di Sheet...", "info");
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === 'success') {
+              showToast("Pengaturan diperbarui!", "success");
+              loadApplicationData();
+              switchTab('dashboard');
+            } else {
+              showToast("Gagal: " + response.message, "error");
+            }
+          })
+          .updateSettings(updated);
+      } else {
+        appState.config = updated;
+        persistData(() => {
+          showToast("Pengaturan diperbarui lokal!", "success");
+          applyConfigToUI();
+          switchTab('dashboard');
+        });
+      }
+    }
+
+    // WHATSAPP API SENDER (KIRIM PESAN OTOMATIS)
+    function sendWA(id) {
+      const item = appState.transaksi.find(t => t.ID_Transaksi === id);
+      if (!item) return;
+
+      const shopName = appState.config.Nama_Laundry;
+      const sisaBayar = Number(item.Total_Harga) - Number(item.DP_Bayar);
+      let payStatusStr = item.Status_Bayar === 'Lunas' ? "LUNAS (Terima Kasih)" : `BELUM LUNAS (Sisa Bayar: Rp ${sisaBayar.toLocaleString()})`;
+
+      let textMessage = `*NOTA LAUNDRY - ${shopName.toUpperCase()}*\n\n` +
+                        `Yth. Kak *${item.Nama_Pelanggan}*,\n` +
+                        `Cucian Anda dengan nomor nota *#${item.ID_Transaksi}* memiliki status saat ini:\n\n` +
+                        `⚙️ Status Proses: *${item.Status_Proses.toUpperCase()}*\n` +
+                        `👕 Layanan: ${item.Layanan} (${item.Berat_Unit || item['Berat/Unit']} Kg)\n` +
+                        `💰 Pembayaran: *${payStatusStr}*\n` +
+                        `📝 Catatan: ${item.Catatan || '-'}\n\n` +
+                        `Terima kasih telah memercayakan cucian Anda di Clean & Glow Laundry! ✨`;
+
+      const encodedText = encodeURIComponent(textMessage);
+      const waUrl = `https://wa.me/${item.No_WhatsApp}?text=${encodedText}`;
+      
+      window.open(waUrl, '_blank');
+      showToast("Tautan WhatsApp berhasil dibuat!", "success");
+    }
+
+    // PRATINJAU STRUK THERMAL 58MM SEBELUM DICETAK
+    function previewStruk(id) {
+      const item = appState.transaksi.find(t => t.ID_Transaksi === id);
+      if (!item) return;
+
+      appState.activePrintId = id; // simpan ID yang sedang aktif ingin dicetak
+      const shopName = appState.config.Nama_Laundry;
+      const shopAddr = appState.config.Alamat;
+      const shopTelp = appState.config.Telepon;
+      const sisa = Number(item.Total_Harga) - Number(item.DP_Bayar);
+
+      // Desain header logo dalam struk jika ada
+      const logoHtml = appState.config.Logo_Base64 
+        ? `<div style="text-align: center; margin-bottom: 8px;"><img src="${appState.config.Logo_Base64}" style="width: 45px; height: 45px; border-radius: 8px; object-fit: cover; display: inline-block;"></div>`
+        : '';
+
+      const htmlContent = `
+        ${logoHtml}
+        <div style="text-align: center; border-bottom: 1px dashed black; padding-bottom: 8px; margin-bottom: 8px;">
+          <h2 style="margin: 0; font-size: 13px; font-weight: bold;">${shopName.toUpperCase()}</h2>
+          <p style="margin: 2px 0 0 0; font-size: 8px; line-height: 1.2;">${shopAddr}</p>
+          <p style="margin: 2px 0 0 0; font-size: 8px;">Telp: +${shopTelp}</p>
+        </div>
+        
+        <table style="width: 100%; font-size: 8px; margin-bottom: 6px; line-height: 1.3;">
+          <tr>
+            <td>Nota: #${item.ID_Transaksi}</td>
+            <td style="text-align: right;">${item.Tanggal_Masuk.substring(0, 10)}</td>
+          </tr>
+          <tr>
+            <td colspan="2">Pelanggan: ${item.Nama_Pelanggan}</td>
+          </tr>
+          <tr>
+            <td colspan="2">No HP: +${item.No_WhatsApp}</td>
+          </tr>
+        </table>
+
+        <div style="border-bottom: 1px dashed black; margin-bottom: 6px;"></div>
+
+        <table style="width: 100%; font-size: 8px; margin-bottom: 8px; line-height: 1.3;">
+          <tr style="font-weight: bold;">
+            <td>Item/Paket</td>
+            <td style="text-align: center;">Qty</td>
+            <td style="text-align: right;">Total</td>
+          </tr>
+          <tr>
+            <td>${item.Layanan}</td>
+            <td style="text-align: center;">${item.Berat_Unit || item['Berat/Unit']} Kg</td>
+            <td style="text-align: right;">Rp ${Number(item.Total_Harga).toLocaleString()}</td>
+          </tr>
+        </table>
+
+        <div style="border-bottom: 1px dashed black; margin-bottom: 6px;"></div>
+
+        <table style="width: 100%; font-size: 8px; margin-bottom: 10px; line-height: 1.3;">
+          <tr>
+            <td style="font-weight: bold;">Total Biaya:</td>
+            <td style="text-align: right; font-weight: bold;">Rp ${Number(item.Total_Harga).toLocaleString()}</td>
+          </tr>
+          <tr>
+            <td>Jumlah Bayar (DP):</td>
+            <td style="text-align: right;">Rp ${Number(item.DP_Bayar).toLocaleString()}</td>
+          </tr>
+          <tr style="font-weight: bold;">
+            <td>Sisa Bayar:</td>
+            <td style="text-align: right; color: ${sisa > 0 ? 'red' : 'green'}">Rp ${sisa.toLocaleString()}</td>
+          </tr>
+          <tr>
+            <td>Status:</td>
+            <td style="text-align: right; font-weight: bold;">${item.Status_Bayar}</td>
+          </tr>
+        </table>
+
+        <div style="border-top: 1px dashed black; padding-top: 6px; text-align: center; font-size: 7px; line-height: 1.3;">
+          <p style="margin: 0;">Catatan: ${item.Catatan || '-'}</p>
+          <p style="margin: 4px 0 0 0; font-weight: bold;">Harap bawa struk ini saat pengambilan.</p>
+          <p style="margin: 2px 0 0 0;">Barang yang tidak diambil dalam 30 hari di luar tanggung jawab kami.</p>
+          <p style="margin: 8px 0 0 0; font-size: 9px; letter-spacing: 2px; font-weight: bold;">* TERIMA KASIH *</p>
+        </div>
+      `;
+
+      // Muat konten ke Modal Pratinjau
+      document.getElementById('receiptModalContent').innerHTML = htmlContent;
+      // Tampilkan Modal Pratinjau
+      document.getElementById('receiptPreviewModal').classList.remove('hidden');
+    }
+
+    function closeReceiptPreview() {
+      document.getElementById('receiptPreviewModal').classList.add('hidden');
+      appState.activePrintId = null;
+    }
+
+    // TRIGER CETAK STRUK SEBENARNYA KE PRINTER FISIK/PDF
+    function triggerActualPrint() {
+      if (!appState.activePrintId) return;
+
+      // Salin isi HTML pratinjau ke container thermal receipt yang tersembunyi
+      const previewContent = document.getElementById('receiptModalContent').innerHTML;
+      const receiptDiv = document.getElementById('thermalReceipt');
+      
+      receiptDiv.innerHTML = previewContent;
+      receiptDiv.classList.remove('hidden');
+
+      // Tutup modal pratinjau terlebih dahulu
+      closeReceiptPreview();
+
+      // Panggil interface cetak native browser
+      setTimeout(() => {
+        window.print();
+        // Sembunyikan kembali div struk sesudah dialog cetak selesai
+        receiptDiv.classList.add('hidden');
+      }, 300);
+    }
+
+    // ALERTS & NOTIFICATION TOAST
+    function showToast(message, type = "success") {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMsg.innerText = message;
+
+      if (type === 'success') {
+        toast.className = "fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-4 bg-emerald-500 text-white rounded-2xl shadow-2xl transition-all duration-300 transform translate-y-0 opacity-100";
+        toastIcon.innerHTML = `<i class="fas fa-check-circle text-lg"></i>`;
+      } else if (type === 'error') {
+        toast.className = "fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-4 bg-red-500 text-white rounded-2xl shadow-2xl transition-all duration-300 transform translate-y-0 opacity-100";
+        toastIcon.innerHTML = `<i class="fas fa-exclamation-triangle text-lg"></i>`;
+      } else {
+        toast.className = "fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-4 bg-blue-500 text-white rounded-2xl shadow-2xl transition-all duration-300 transform translate-y-0 opacity-100";
+        toastIcon.innerHTML = `<i class="fas fa-info-circle text-lg"></i>`;
+      }
+
+      toast.classList.remove('hidden');
+
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3500);
+    }
+  </script>
+<script type="text/javascript">
+    // Menonaktifkan Klik Kanan
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    // Menonaktifkan Shortcut Keyboard (F12, Ctrl+Shift+I, Ctrl+U)
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C')) || 
+            (e.ctrlKey && e.key === 'u')) {
+            e.preventDefault();
+        }
+    });
+</script>
+</body>
+</html>
