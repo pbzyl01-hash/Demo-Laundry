@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <script>
-    // Konfigurasi Tailwind Kustom
     tailwind.config = {
       darkMode: 'class',
       theme: {
@@ -90,8 +89,44 @@
 </head>
 <body class="bg-gray-50 text-slate-800 font-sans min-h-screen transition-colors duration-300 dark:bg-slate-900 dark:text-slate-100">
 
-  <!-- ==================== AREA UTAMA KASIR ==================== -->
-  <div id="appContainer" class="min-h-screen flex flex-col md:flex-row">
+  <!-- ==================== GERBANG LOGIN KASIR (PENGAMAN UTAMA) ==================== -->
+  <div id="loginGate" class="hidden min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-brand-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+    <div class="w-full max-w-md bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-700 space-y-6">
+      <div class="text-center space-y-3">
+        <div class="w-16 h-16 bg-brand-500 text-white rounded-2xl flex items-center justify-center overflow-hidden mx-auto shadow-lg shadow-brand-500/20">
+          <i class="fas fa-soap text-2xl"></i>
+        </div>
+        <div>
+          <h2 class="text-2xl font-black tracking-tight text-slate-850 dark:text-white">Clean & Glow Laundry</h2>
+          <p class="text-xs text-slate-400 mt-1">Sistem Pengaman Kasir Terintegrasi Cloud</p>
+        </div>
+      </div>
+
+      <div class="space-y-4 pt-2">
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Masukkan PIN Kasir</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400"><i class="fas fa-lock"></i></span>
+            <input type="password" id="loginPinInput" maxlength="6" placeholder="••••••" class="w-full pl-11 pr-12 py-3.5 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-2xl text-center tracking-widest font-black text-xl outline-none transition-all text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-brand-500" onkeydown="if(event.key === 'Enter') attemptLogin()">
+            <button type="button" onclick="toggleLoginPinEye()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-brand-500 outline-none">
+              <i id="loginEyeIcon" class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button onclick="attemptLogin()" class="w-full py-3.5 bg-gradient-to-r from-brand-600 to-cyan-500 text-white font-bold rounded-2xl hover:from-brand-700 hover:to-cyan-600 transition-all shadow-lg shadow-brand-500/10 flex items-center justify-center gap-2">
+          <i class="fas fa-sign-in-alt"></i> Masuk ke Panel Kasir
+        </button>
+      </div>
+
+      <div class="text-center">
+        <span class="text-[10px] text-slate-400 font-semibold uppercase">Powered by Hay Studio</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== AREA UTAMA KASIR (DIKUNCI JIKA BELUM LOGIN) ==================== -->
+  <div id="appContainer" class="hidden min-h-screen flex flex-col md:flex-row">
     
     <!-- SIDEBAR NAVIGATION (Desktop) & BOTTOM NAV (Mobile) -->
     <aside class="no-print w-full md:w-64 bg-white dark:bg-slate-800 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 flex flex-col justify-between md:min-h-screen shrink-0 transition-all z-40">
@@ -124,6 +159,13 @@
           <i class="fas fa-sliders-h w-5"></i> Pengaturan (Admin)
         </button>
       </nav>
+
+      <!-- Tombol Logout Kasir (Keamanan Tambahan) -->
+      <div class="p-4 border-t border-slate-200 dark:border-slate-700 no-print">
+        <button onclick="handleLogout()" class="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/20 dark:text-rose-400 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+          <i class="fas fa-sign-out-alt"></i> Keluar Aplikasi
+        </button>
+      </div>
     </aside>
 
     <!-- CONTENT WRAPPER -->
@@ -471,7 +513,7 @@
               </button>
             </div>
 
-            <!-- SUSUNAN BARU: TATA LETAK VERTIKAL LINEAR UNTUK MENGHINDARI LAYOUT TERPOTONG -->
+            <!-- TATA LETAK VERTIKAL LINEAR -->
             <div class="space-y-6">
               
               <!-- BLOK 1 (ATAS): Informasi & Profil Toko -->
@@ -538,7 +580,7 @@
                 </form>
               </div>
 
-              <!-- BLOK 2 (BAWAH): Tarif Layanan (SEKARANG BERADA DI BAWAH PROFIL TOKO DENGAN UKURAN FULL / LEBIH JELAS) -->
+              <!-- BLOK 2 (BAWAH): Tarif Layanan -->
               <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-3xl shadow-lg border border-slate-150 dark:border-slate-700/80">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-4 border-slate-100 dark:border-slate-700 mb-4 gap-3">
                   <div>
@@ -574,7 +616,7 @@
   </div>
 
 
-  <!-- ==================== AREA PUBLIC STRUK VIEW (METODE 1 VERCEL) ==================== -->
+  <!-- ==================== AREA PUBLIC STRUK VIEW (VERCEL METODE 1) ==================== -->
   <div id="publicReceiptViewer" class="hidden min-h-screen bg-slate-100 dark:bg-slate-950 flex justify-center items-center p-4">
     <!-- Konten diisi secara dinamis oleh JS jika mendeteksi parameter ?viewReceipt=CG-XXXX -->
   </div>
@@ -654,13 +696,80 @@
         appState.isPublicReceiptMode = true;
         loadPublicReceipt(viewReceiptId);
       } else {
-        loadApplicationData();
+        // Cek Status Autentikasi Kasir
+        const hasSession = sessionStorage.getItem('CG_Authenticated') === 'true';
+        if (hasSession) {
+          showApp();
+          loadApplicationData();
+        } else {
+          showLoginGate();
+          // Muat data minimal di latar belakang untuk validasi PIN kustom cloud
+          preloadConfigOnly();
+        }
       }
     };
+
+    function showLoginGate() {
+      document.getElementById('loginGate').classList.remove('hidden');
+      document.getElementById('appContainer').classList.add('hidden');
+      document.getElementById('publicReceiptViewer').classList.add('hidden');
+    }
+
+    function showApp() {
+      document.getElementById('loginGate').classList.add('hidden');
+      document.getElementById('appContainer').classList.remove('hidden');
+      document.getElementById('publicReceiptViewer').classList.add('hidden');
+    }
+
+    function attemptLogin() {
+      const pinField = document.getElementById('loginPinInput');
+      const enteredPin = pinField.value;
+      const validPin = appState.config.Pin_Akses || '1234';
+
+      if (enteredPin === String(validPin)) {
+        sessionStorage.setItem('CG_Authenticated', 'true');
+        showToast("Login Berhasil! Selamat bekerja.", "success");
+        pinField.value = '';
+        showApp();
+        loadApplicationData();
+      } else {
+        showToast("PIN Kasir Salah! Akses ditolak.", "error");
+        pinField.value = '';
+      }
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem('CG_Authenticated');
+      showToast("Sesi kasir berakhir. Aplikasi dikunci.", "info");
+      showLoginGate();
+    }
+
+    function toggleLoginPinEye() {
+      const pinField = document.getElementById('loginPinInput');
+      const eyeIcon = document.getElementById('loginEyeIcon');
+      if (pinField.type === "password") {
+        pinField.type = "text";
+        eyeIcon.className = "fas fa-eye-slash text-brand-500";
+      } else {
+        pinField.type = "password";
+        eyeIcon.className = "fas fa-eye text-slate-400";
+      }
+    }
+
+    function preloadConfigOnly() {
+      callBackend('getInitialData', null, function(response) {
+        if (response.config) {
+          appState.config = response.config;
+        }
+      }, function() {
+        // Fallback jika offline sudah ditangani fallbackLocalDB
+      });
+    }
 
     // FUNGSIONALITAS MEMUAT DAN MERENDER STRUK KHUSUS PELANGGAN (METODE 1)
     function loadPublicReceipt(id) {
       document.getElementById('appContainer').classList.add('hidden');
+      document.getElementById('loginGate').classList.add('hidden');
       const viewer = document.getElementById('publicReceiptViewer');
       viewer.classList.remove('hidden');
 
@@ -671,7 +780,7 @@
         </div>
       `;
 
-      // Hubungi Backend untuk Mengambil Data Awal (Meskipun dari Vercel/Lokal)
+      // Hubungi Backend untuk Mengambil Data
       callBackend('getInitialData', null, function(response) {
         const transactions = response.transaksi || [];
         const config = response.config || appState.config;
@@ -682,8 +791,8 @@
             <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl text-center max-w-md w-full border border-slate-200 dark:border-slate-700">
               <div class="text-red-500 text-5xl mb-4">⚠️</div>
               <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Struk Tidak Ditemukan</h2>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Maaf, nota laundry dengan kode ID <strong>#${id}</strong> tidak ditemukan atau telah kedaluwarsa.</p>
-              <a href="${window.location.origin}${window.location.pathname}" class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-md transition-all">Buka Kasir</a>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Maaf, nota laundry dengan kode ID <strong>#${id}</strong> tidak ditemukan atau telah dihapus.</p>
+              <button onclick="location.href='${window.location.origin}${window.location.pathname}'" class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-md transition-all">Buka Kasir</button>
             </div>
           `;
           return;
@@ -755,7 +864,7 @@
             <tbody>
               <tr class="font-bold text-slate-800 dark:text-slate-200">
                 <td class="py-3 pr-2">${item.Layanan}</td>
-                <td class="py-3 text-center whitespace-nowrap">${item.Berat_Unit || item['Berat_Unit'] || 0} Kg/Pcs</td>
+                <td class="py-3 text-center whitespace-nowrap">${item.Berat_Unit || 0} Kg/Pcs</td>
                 <td class="py-3 text-right">Rp ${Number(item.Total_Harga).toLocaleString()}</td>
               </tr>
             </tbody>
@@ -875,7 +984,7 @@
         badge.className = "bg-rose-500/10 text-rose-600 dark:text-rose-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all border border-rose-500/15 cursor-pointer hover:bg-rose-500/20";
         badge.title = message || "Gagal menyinkronkan data ke spreadsheet. Klik untuk solusi.";
         badge.onclick = function() {
-          alert(`Sistem Berjalan di Mode Cadangan Lokal (Offline Mode)\n\nDetail Kendala:\n"${badge.title}"\n\nSolusi agar data tersimpan otomatis di Google Sheets:\n1. Pastikan isi skrip Code.gs Anda sudah disalin dengan benar di Google Spreadsheet.\n2. Lakukan Deploy ulang -> New Deployment -> Pilih Jenis "Web App".\n3. Pastikan kolom "Execute as" diatur ke "Me" (Email Anda).\n4. Kolom "Who has access" diatur ke "Anyone" (Siapa saja / Anonim).\n5. Salin tautan Web App URL baru tersebut lalu perbarui variabel GAS_URL di baris 578 berkas ini.`);
+          alert(`Sistem Berjalan di Mode Cadangan Lokal (Offline Mode)\n\nDetail Kendala:\n"${badge.title}"\n\nSolusi agar data tersimpan otomatis di Google Sheets:\n1. Pastikan isi skrip Code.gs Anda sudah disalin dengan benar di Google Spreadsheet.\n2. Lakukan Deploy ulang -> New Deployment -> Pilih Jenis "Web App".\n3. Pastikan kolom "Execute as" diatur ke "Me" (Email Anda).\n4. Kolom "Who has access" diatur ke "Anyone" (Siapa saja / Anonim).\n5. Salin tautan Web App URL baru tersebut lalu perbarui variabel GAS_URL di berkas ini.`);
         };
         badge.innerHTML = `<span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span> Mode Lokal (Offline)`;
       }
@@ -1342,7 +1451,7 @@
       document.getElementById('form-pelanggan').value = item.Nama_Pelanggan;
       document.getElementById('form-whatsapp').value = item.No_WhatsApp;
       document.getElementById('form-layanan').value = item.Layanan;
-      document.getElementById('form-berat').value = item.Berat_Unit || item['Berat_Unit'] || 1.0;
+      document.getElementById('form-berat').value = item.Berat_Unit || 1.0;
       document.getElementById('form-total').value = item.Total_Harga;
       document.getElementById('form-dp').value = item.DP_Bayar;
       document.getElementById('form-status-bayar').value = item.Status_Bayar;
@@ -1441,7 +1550,7 @@
           </td>
           <td class="p-4">
             <div class="font-semibold text-xs text-slate-600 dark:text-slate-300">${item.Layanan}</div>
-            <div class="text-xs font-bold text-slate-400 mt-0.5">${item.Berat_Unit || item['Berat_Unit'] || 0} Kg/Pcs</div>
+            <div class="text-xs font-bold text-slate-400 mt-0.5">${item.Berat_Unit || 0} Kg/Pcs</div>
           </td>
           <td class="p-4">
             <div class="font-extrabold text-slate-800 dark:text-slate-200">Rp ${Number(item.Total_Harga).toLocaleString()}</div>
@@ -1570,14 +1679,14 @@
       const sisaBayar = Number(item.Total_Harga) - Number(item.DP_Bayar);
       let payStatusStr = item.Status_Bayar === 'Lunas' ? "LUNAS (Terima Kasih)" : `BELUM LUNAS (Sisa Bayar: Rp ${sisaBayar.toLocaleString()})`;
 
-      // Membuat link struk digital unik berbasis ID transaksi secara dinamis
+      // Membuat link struk digital unik berbasis ID transaksi secara dinamis menggunakan domain aktif
       const digitalReceiptUrl = `${window.location.origin}${window.location.pathname}?viewReceipt=${item.ID_Transaksi}`;
 
       let textMessage = `*NOTA LAUNDRY - ${shopName.toUpperCase()}*\n\n` +
                         `Yth. Kak *${item.Nama_Pelanggan}*,\n` +
                         `Cucian Anda dengan nomor nota *#${item.ID_Transaksi}* memiliki status saat ini:\n\n` +
                         `⚙️ Status Proses: *${item.Status_Proses.toUpperCase()}*\n` +
-                        `👕 Layanan: ${item.Layanan} (${item.Berat_Unit || item['Berat_Unit'] || 0} Kg)\n` +
+                        `👕 Layanan: ${item.Layanan} (${item.Berat_Unit || 0} Kg)\n` +
                         `💰 Pembayaran: *${payStatusStr}*\n` +
                         `📝 Catatan: ${item.Catatan || '-'}\n\n` +
                         `📄 *Lihat & Unduh Struk PDF:* ${digitalReceiptUrl}\n\n` +
@@ -1635,7 +1744,7 @@
           </tr>
           <tr>
             <td>${item.Layanan}</td>
-            <td style="text-align: center;">${item.Berat_Unit || item['Berat_Unit'] || 0} Kg</td>
+            <td style="text-align: center;">${item.Berat_Unit || 0} Kg</td>
             <td style="text-align: right;">Rp ${Number(item.Total_Harga).toLocaleString()}</td>
           </tr>
         </table>
