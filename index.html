@@ -134,14 +134,12 @@
             Menghubungkan...
           </div>
 
-          <!-- Jam, Hari, & Tanggal Terintegrasi -->
+          <!-- Jam, Hari, & Tanggal Terintegrasi (Tanpa WIB) -->
           <div class="bg-slate-50 dark:bg-slate-700/45 px-4 py-2 rounded-xl border border-slate-150 dark:border-slate-700 flex items-center gap-3 text-xs sm:text-sm">
             <div class="text-right">
               <span id="liveMobileDate" class="font-bold text-slate-500 dark:text-slate-400 block text-[11px] leading-tight">Memuat Tanggal...</span>
               <span id="liveMobileTime" class="font-black text-brand-600 dark:text-brand-400 text-sm">00:00:00</span>
             </div>
-            <div class="w-[1px] h-6 bg-slate-200 dark:bg-slate-600"></div>
-            <span class="text-[10px] font-bold text-slate-400 tracking-wider">WIB</span>
           </div>
 
           <!-- Tombol Sakelar Gelap Terang Bulat Premium -->
@@ -627,6 +625,35 @@
       loadApplicationData();
     };
 
+    // FUNGSI FORMAT TANGGAL DAN WAKTU INDONESIA (REALTIME & SINKRON DENGAN HEADER)
+    function formatDateTime(inputStr) {
+      if (!inputStr) return '-';
+      try {
+        let normalizedStr = String(inputStr).trim();
+        // Normalisasi format datetime jika terdapat spasi pemisah tanpa karakter T
+        if (normalizedStr.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?$/)) {
+          normalizedStr = normalizedStr.replace(' ', 'T');
+        }
+        const d = new Date(normalizedStr);
+        if (isNaN(d.getTime())) return inputStr;
+        
+        const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        
+        const dayName = dayNames[d.getDay()];
+        const dateNum = d.getDate();
+        const monthName = monthNames[d.getMonth()];
+        const yearNum = d.getFullYear();
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        const seconds = String(d.getSeconds()).padStart(2, '0');
+        
+        return `${dayName}, ${dateNum} ${monthName} ${yearNum} ${hours}:${minutes}:${seconds}`;
+      } catch (e) {
+        return inputStr;
+      }
+    }
+
     // FUNGSI NAVIGASI TAB UTAMA (MENANGANI TAMPILAN ANTARMUKA)
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -1087,11 +1114,13 @@
       };
 
       const transId = document.getElementById('form-id').value || 'CG-' + Date.now().toString().substring(7);
-      const dateIn = document.getElementById('form-id').value ? undefined : new Date().toISOString().substring(0, 16).replace('T', ' ');
+      
+      // Menyimpan menggunakan format standar ISO agar parser browser bekerja dengan presisi tinggi
+      const dateIn = document.getElementById('form-id').value ? undefined : new Date().toISOString();
 
       const transData = {
         ID_Transaksi: transId,
-        Tanggal_Masuk: dateIn || new Date().toISOString().substring(0, 16).replace('T', ' '),
+        Tanggal_Masuk: dateIn || new Date().toISOString(),
         Nama_Pelanggan: document.getElementById('form-pelanggan').value,
         No_WhatsApp: formatPhone(document.getElementById('form-whatsapp').value),
         Layanan: document.getElementById('form-layanan').value,
@@ -1220,7 +1249,7 @@
         tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors border-b border-slate-100 dark:border-slate-700/60";
         tr.innerHTML = `
           <td class="p-4 text-center font-black text-xs text-brand-600 dark:text-brand-400">#${item.ID_Transaksi}</td>
-          <td class="p-4 text-xs font-mono text-slate-500">${item.Tanggal_Masuk}</td>
+          <td class="p-4 text-xs font-semibold text-slate-550 dark:text-slate-300 font-sans">${formatDateTime(item.Tanggal_Masuk)}</td>
           <td class="p-4">
             <div class="font-bold">${item.Nama_Pelanggan}</div>
             <div class="text-xs text-slate-400"><i class="fab fa-whatsapp text-emerald-500 mr-0.5"></i> ${item.No_WhatsApp}</div>
@@ -1396,7 +1425,7 @@
         <table style="width: 100%; font-size: 8px; margin-bottom: 6px; line-height: 1.3;">
           <tr>
             <td>Nota: #${item.ID_Transaksi}</td>
-            <td style="text-align: right;">${item.Tanggal_Masuk.substring(0, 10)}</td>
+            <td style="text-align: right;">${formatDateTime(item.Tanggal_Masuk)}</td>
           </tr>
           <tr>
             <td colspan="2">Pelanggan: ${item.Nama_Pelanggan}</td>
@@ -1531,7 +1560,7 @@
       }, 3500);
     }
   </script>
-  <script type="text/javascript">
+<script type="text/javascript">
     // Menonaktifkan Klik Kanan
     document.addEventListener('contextmenu', function(e) {
         e.preventDefault();
