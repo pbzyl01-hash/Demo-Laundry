@@ -66,7 +66,23 @@
         font-size: 10px;
         line-height: 1.2;
       }
-      .no-print {
+      /* Tampilan Cetak Mode Struk Pelanggan (Metode 1 Vercel) */
+      .receipt-card-public, .receipt-card-public * {
+        visibility: visible;
+      }
+      .receipt-card-public {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        background: white !important;
+        color: black !important;
+      }
+      .btn-container-public, .no-print {
         display: none !important;
       }
     }
@@ -74,7 +90,7 @@
 </head>
 <body class="bg-gray-50 text-slate-800 font-sans min-h-screen transition-colors duration-300 dark:bg-slate-900 dark:text-slate-100">
 
-  <!-- ==================== MAIN APPLICATION CONTAINER ==================== -->
+  <!-- ==================== AREA UTAMA KASIR ==================== -->
   <div id="appContainer" class="min-h-screen flex flex-col md:flex-row">
     
     <!-- SIDEBAR NAVIGATION (Desktop) & BOTTOM NAV (Mobile) -->
@@ -134,7 +150,7 @@
             Menghubungkan...
           </div>
 
-          <!-- Jam, Hari, & Tanggal Terintegrasi (Tanpa WIB) -->
+          <!-- Jam, Hari, & Tanggal Terintegrasi -->
           <div class="bg-slate-50 dark:bg-slate-700/45 px-4 py-2 rounded-xl border border-slate-150 dark:border-slate-700 flex items-center gap-3 text-xs sm:text-sm">
             <div class="text-right">
               <span id="liveMobileDate" class="font-bold text-slate-500 dark:text-slate-400 block text-[11px] leading-tight">Memuat Tanggal...</span>
@@ -558,6 +574,12 @@
   </div>
 
 
+  <!-- ==================== AREA PUBLIC STRUK VIEW (METODE 1 VERCEL) ==================== -->
+  <div id="publicReceiptViewer" class="hidden min-h-screen bg-slate-100 dark:bg-slate-950 flex justify-center items-center p-4">
+    <!-- Konten diisi secara dinamis oleh JS jika mendeteksi parameter ?viewReceipt=CG-XXXX -->
+  </div>
+
+
   <!-- ==================== DIALOG / TOAST MODAL ALERTS ==================== -->
   <div id="toast" class="hidden fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-4 bg-emerald-500 text-white rounded-2xl shadow-2xl transition-all duration-300">
     <span id="toastIcon"><i class="fas fa-check-circle text-lg"></i></span>
@@ -615,15 +637,175 @@
       },
       filterStatus: 'Semua',
       isGoogleAppsScript: false,
-      activePrintId: null
+      activePrintId: null,
+      isPublicReceiptMode: false
     };
 
     window.onload = function() {
       appState.isGoogleAppsScript = (typeof google !== 'undefined' && google.script && google.script.run);
       initClock();
       loadThemeFromLocalStorage();
-      loadApplicationData();
+
+      // DETEKSI APAKAH BROWSER DIBUKA OLEH PELANGGAN YANG INGIN MELIHAT STRUK DIGITAL (METODE 1)
+      const urlParams = new URLSearchParams(window.location.search);
+      const viewReceiptId = urlParams.get('viewReceipt');
+
+      if (viewReceiptId) {
+        appState.isPublicReceiptMode = true;
+        loadPublicReceipt(viewReceiptId);
+      } else {
+        loadApplicationData();
+      }
     };
+
+    // FUNGSIONALITAS MEMUAT DAN MERENDER STRUK KHUSUS PELANGGAN (METODE 1)
+    function loadPublicReceipt(id) {
+      document.getElementById('appContainer').classList.add('hidden');
+      const viewer = document.getElementById('publicReceiptViewer');
+      viewer.classList.remove('hidden');
+
+      viewer.innerHTML = `
+        <div class="text-center p-8 text-slate-500 dark:text-slate-400">
+          <i class="fas fa-spinner fa-spin text-4xl text-brand-500 mb-3 block"></i>
+          <p class="font-bold text-sm">Sedang memproses Struk Digital Anda...</p>
+        </div>
+      `;
+
+      // Hubungi Backend untuk Mengambil Data Awal (Meskipun dari Vercel/Lokal)
+      callBackend('getInitialData', null, function(response) {
+        const transactions = response.transaksi || [];
+        const config = response.config || appState.config;
+
+        const item = transactions.find(t => String(t.ID_Transaksi) === String(id));
+        if (!item) {
+          viewer.innerHTML = `
+            <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl text-center max-w-md w-full border border-slate-200 dark:border-slate-700">
+              <div class="text-red-500 text-5xl mb-4">⚠️</div>
+              <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Struk Tidak Ditemukan</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Maaf, nota laundry dengan kode ID <strong>#${id}</strong> tidak ditemukan atau telah kedaluwarsa.</p>
+              <a href="${window.location.origin}${window.location.pathname}" class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-md transition-all">Buka Kasir</a>
+            </div>
+          `;
+          return;
+        }
+
+        renderPublicReceiptCard(item, config);
+      }, function(err) {
+        viewer.innerHTML = `
+          <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl text-center max-w-md w-full border border-slate-200 dark:border-slate-700">
+            <div class="text-amber-500 text-5xl mb-4">🔌</div>
+            <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Masalah Sinkronisasi</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Koneksi data cloud terganggu. Silakan muat ulang halaman ini.</p>
+            <button onclick="location.reload()" class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-md transition-all">Coba Lagi</button>
+          </div>
+        `;
+      });
+    }
+
+    // MEMBUAT TAMPILAN KARTU STRUK YANG ELEGAN, MINIMALIS, DAN BISA DICETAK PDF SECARA MANDIRI
+    function renderPublicReceiptCard(item, config) {
+      const viewer = document.getElementById('publicReceiptViewer');
+      const sisa = Number(item.Total_Harga) - Number(item.DP_Bayar);
+      const isLunas = item.Status_Bayar === "Lunas";
+      const isDp = item.Status_Bayar === "DP (Uang Muka)";
+      
+      const logoHtml = config.Logo_Base64 
+        ? `<img src="${config.Logo_Base64}" class="w-16 h-16 rounded-2xl object-cover mx-auto mb-3 border border-slate-100 dark:border-slate-700 shadow-sm">`
+        : `<div class="w-14 h-14 bg-brand-100 dark:bg-brand-950 text-brand-600 dark:text-brand-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl font-bold">✨</div>`;
+
+      let badgeClass = "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
+      if (isLunas) badgeClass = "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400";
+      if (isDp) badgeClass = "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
+
+      viewer.innerHTML = `
+        <div class="receipt-card-public bg-white dark:bg-slate-800 p-6 md:p-8 rounded-3xl shadow-xl max-w-md w-full border border-slate-150 dark:border-slate-700 relative overflow-hidden">
+          
+          <!-- Decorative Top Design -->
+          <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-500 to-cyan-400"></div>
+
+          <div class="text-center">
+            ${logoHtml}
+            <h1 class="text-lg font-black text-slate-850 dark:text-white uppercase tracking-tight">${config.Nama_Laundry}</h1>
+            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">${config.Alamat}</p>
+            <p class="text-[11px] text-slate-400">Telp: +${config.Telepon}</p>
+          </div>
+
+          <div class="border-t-2 border-dashed border-slate-200 dark:border-slate-700 my-5"></div>
+
+          <table class="w-full text-xs text-slate-600 dark:text-slate-400 space-y-2">
+            <tr>
+              <td><span class="font-bold">No. Nota:</span> #${item.ID_Transaksi}</td>
+              <td class="text-right font-mono text-[10px]">${formatDateTime(item.Tanggal_Masuk)}</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="pt-1"><span class="font-bold">Pelanggan:</span> ${item.Nama_Pelanggan}</td>
+            </tr>
+          </table>
+
+          <div class="border-t border-slate-200 dark:border-slate-700 my-4"></div>
+
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="text-slate-400 font-bold uppercase text-[10px] border-b border-slate-100 dark:border-slate-700 pb-2">
+                <th class="pb-2">Layanan</th>
+                <th class="pb-2 text-center">Qty</th>
+                <th class="pb-2 text-right">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="font-bold text-slate-800 dark:text-slate-200">
+                <td class="py-3 pr-2">${item.Layanan}</td>
+                <td class="py-3 text-center whitespace-nowrap">${item.Berat_Unit || item['Berat_Unit'] || 0} Kg/Pcs</td>
+                <td class="py-3 text-right">Rp ${Number(item.Total_Harga).toLocaleString()}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="border-t-2 border-dashed border-slate-200 dark:border-slate-700 my-5"></div>
+
+          <table class="w-full text-xs space-y-2">
+            <tr class="text-slate-500 dark:text-slate-400">
+              <td>Subtotal Jasa:</td>
+              <td class="text-right font-bold">Rp ${Number(item.Total_Harga).toLocaleString()}</td>
+            </tr>
+            <tr class="text-slate-500 dark:text-slate-400">
+              <td class="pt-1">Sudah Dibayar (DP):</td>
+              <td class="text-right font-bold text-brand-600 dark:text-brand-400 pt-1">Rp ${Number(item.DP_Bayar).toLocaleString()}</td>
+            </tr>
+            <tr class="text-sm font-extrabold text-slate-800 dark:text-white border-t border-slate-100 dark:border-slate-700 pt-2 mt-2">
+              <td class="pt-2">Sisa Pembayaran:</td>
+              <td class="pt-2 text-right text-${sisa > 0 ? 'red-500' : 'emerald-500'}">Rp ${sisa.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td class="pt-4 text-slate-500 dark:text-slate-400">Status Pembayaran:</td>
+              <td class="text-right pt-4">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase ${badgeClass}">${item.Status_Bayar}</span>
+              </td>
+            </tr>
+          </table>
+
+          <div class="border-t border-slate-100 dark:border-slate-700 my-5"></div>
+
+          <div class="text-center text-[10px] text-slate-400 leading-relaxed">
+            <p class="font-bold">Catatan Khusus:</p>
+            <p class="italic mb-4 text-slate-500">"${item.Catatan || '-'}"</p>
+            <p>Harap simpan bukti digital ini untuk mempermudah serah terima pakaian Anda di toko.</p>
+            <p class="font-black mt-4 tracking-widest uppercase text-brand-600 dark:text-brand-400 text-xs">✨ Terima Kasih ✨</p>
+          </div>
+
+          <!-- Pilihan Aksi Responsif Pelanggan (Disembunyikan saat cetak) -->
+          <div class="btn-container-public mt-6 flex gap-3 no-print">
+            <button onclick="window.print()" class="flex-1 py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs transition-all shadow-md shadow-brand-500/10 flex items-center justify-center gap-1.5">
+              <i class="fas fa-print"></i> Cetak / Simpan PDF
+            </button>
+            <a href="https://wa.me/${config.Telepon}" target="_blank" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 text-center">
+              <i class="fab fa-whatsapp text-lg text-emerald-500"></i> Hubungi Kasir
+            </a>
+          </div>
+
+        </div>
+      `;
+    }
 
     // FUNGSI FORMAT TANGGAL DAN WAKTU INDONESIA (REALTIME & SINKRON DENGAN HEADER)
     function formatDateTime(inputStr) {
@@ -983,6 +1165,36 @@
         showToast("Hak akses Admin diberikan!", "success");
       } else {
         showToast("PIN Admin Salah!", "error");
+      }
+    }
+
+    function lockAdminMode() {
+      appState.isAdminAuthorized = false;
+      document.getElementById('adminPanelContent').classList.add('hidden');
+      document.getElementById('adminPinGate').classList.remove('hidden');
+    }
+
+    function toggleAdminPinEye() {
+      const pinField = document.getElementById('adminPinInput');
+      const eyeIcon = document.getElementById('adminEyeIcon');
+      if (pinField.type === "password") {
+        pinField.type = "text";
+        eyeIcon.className = "fas fa-eye-slash text-brand-500";
+      } else {
+        pinField.type = "password";
+        eyeIcon.className = "fas fa-eye text-slate-400";
+      }
+    }
+
+    function toggleInputPinEye(inputId, iconId) {
+      const pinField = document.getElementById(inputId);
+      const eyeIcon = document.getElementById(iconId);
+      if (pinField.type === "password") {
+        pinField.type = "text";
+        eyeIcon.className = "fas fa-eye-slash text-brand-500";
+      } else {
+        pinField.type = "password";
+        eyeIcon.className = "fas fa-eye text-slate-400";
       }
     }
 
@@ -1358,8 +1570,8 @@
       const sisaBayar = Number(item.Total_Harga) - Number(item.DP_Bayar);
       let payStatusStr = item.Status_Bayar === 'Lunas' ? "LUNAS (Terima Kasih)" : `BELUM LUNAS (Sisa Bayar: Rp ${sisaBayar.toLocaleString()})`;
 
-      // Membuat link struk digital unik berbasis ID transaksi
-      const digitalReceiptUrl = `${GAS_URL}?action=viewReceipt&id=${item.ID_Transaksi}`;
+      // Membuat link struk digital unik berbasis ID transaksi secara dinamis
+      const digitalReceiptUrl = `${window.location.origin}${window.location.pathname}?viewReceipt=${item.ID_Transaksi}`;
 
       let textMessage = `*NOTA LAUNDRY - ${shopName.toUpperCase()}*\n\n` +
                         `Yth. Kak *${item.Nama_Pelanggan}*,\n` +
