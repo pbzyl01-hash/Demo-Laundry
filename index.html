@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <script>
+    // Konfigurasi Tailwind Kustom
     tailwind.config = {
       darkMode: 'class',
       theme: {
@@ -118,6 +119,21 @@
 
       <div class="text-center">
         <span class="text-[10px] text-slate-400 font-semibold uppercase">Powered by Hay Studio</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STREAMING_CHUNK: Merender Tampilan Struk Digital Pelanggan (Vercel Mode) ==================== -->
+  <div id="customerReceiptView" class="hidden min-h-screen bg-slate-50 dark:bg-slate-950 py-10 px-4 flex flex-col items-center justify-center">
+    <div id="customerReceiptCard" class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl max-w-md w-full border border-slate-100 dark:border-slate-700 text-center space-y-6">
+      <!-- Loading Spinner -->
+      <div id="receiptLoader" class="py-12 space-y-4">
+        <i class="fas fa-circle-notch fa-spin text-4xl text-brand-500"></i>
+        <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Menghubungkan & Memuat Struk Digital...</p>
+      </div>
+      <!-- Content Area -->
+      <div id="receiptContent" class="hidden text-left space-y-6">
+        <!-- Javascript akan mengisi secara dinamis -->
       </div>
     </div>
   </div>
@@ -591,15 +607,18 @@
                 </div>
               </div>
 
-              <!-- BLOK 3: Manajemen Akun Kasir (Baru & Sesuai Desain Vertikal Premium) -->
+              <!-- BLOK 3: Manajemen Akun Kasir -->
               <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-3xl shadow-lg border border-slate-150 dark:border-slate-700/80">
                 <h3 class="text-lg font-bold border-b pb-3 border-slate-100 dark:border-slate-700 mb-4 text-slate-850 dark:text-white flex items-center gap-2">
                   <i class="fas fa-users-cog text-indigo-500"></i> Manajemen Akun Kasir
                 </h3>
-                <p class="text-xs text-slate-400 mb-4">Buat akun kasir baru dan atur PIN login khusus untuk masing-masing staf.</p>
+                <p class="text-xs text-slate-400 mb-4">Buat akun kasir baru, edit identitas kasir, atau atur PIN login khusus masing-masing staf.</p>
                 
-                <!-- Form Input Kasir Baru -->
+                <!-- Form Input / Edit Kasir Baru -->
                 <form id="cashierAccountForm" onsubmit="handleAddCashier(event)" class="space-y-4 mb-6">
+                  <!-- Hidden Input untuk Deteksi Edit Mode -->
+                  <input type="hidden" id="edit-cashier-old-name" value="">
+                  
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label class="block text-xs font-bold text-slate-400 mb-1">Nama / Username Kasir</label>
@@ -610,9 +629,12 @@
                       <input type="password" id="new-cashier-pin" required maxlength="6" placeholder="••••••" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm outline-none transition-all text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-brand-500 text-center tracking-widest font-black text-lg">
                     </div>
                   </div>
-                  <div class="flex justify-end">
-                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5">
-                      <i class="fas fa-user-plus"></i> Tambah Akun Kasir
+                  <div class="flex justify-end gap-2">
+                    <button type="button" id="cancel-cashier-edit-btn" onclick="cancelCashierEdit()" class="hidden px-4 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold transition-all hover:bg-slate-200">
+                      Batal Edit
+                    </button>
+                    <button type="submit" id="cashier-submit-btn" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5">
+                      <i class="fas fa-user-plus"></i> <span id="cashier-submit-text">Tambah Akun Kasir</span>
                     </button>
                   </div>
                 </form>
@@ -702,7 +724,7 @@
         <form id="tutupBukuForm" onsubmit="handleTutupBukuSubmit(event)" class="space-y-3">
           <div>
             <label class="block font-bold text-slate-500 mb-1">Jumlah Uang Fisik di Laci (Rp) <span class="text-red-500">*</span></label>
-            <input type="number" id="tb-uang-fisik" required oninput="calculateShiftVariance()" placeholder="Masukkan nominal uang laci..." class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-lg font-black text-slate-850 dark:text-slate-100 outline-none transition-all focus:ring-2 focus:ring-brand-500">
+            <input type="number" id="tb-uang-fisik" required oninput="calculateShiftVariance()" placeholder="Masukkan nominal uang laci..." class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-lg font-black text-slate-855 dark:text-slate-100 outline-none transition-all focus:ring-2 focus:ring-brand-500">
           </div>
 
           <div class="p-3 rounded-xl flex justify-between items-center bg-slate-50 dark:bg-slate-700/30 text-sm">
@@ -729,7 +751,7 @@
   </div>
 
 
-  <!-- ==================== RECEIPT PREVIEW MODAL ==================== -->
+  <!-- ==================== STREAMING_CHUNK: RECEIPT PREVIEW MODAL ==================== -->
   <div id="receiptPreviewModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/85 backdrop-blur-sm px-4">
     <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-2xl max-w-sm w-full border border-slate-200 dark:border-slate-700 flex flex-col max-h-[90vh]">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700 mb-4">
@@ -755,7 +777,7 @@
   </div>
 
 
-  <!-- ==================== CUSTOM CONFIRMATION DIALOG MODAL (ANTI-ALERT/CONFIRM BAN) ==================== -->
+  <!-- ==================== STREAMING_CHUNK: CUSTOM CONFIRMATION DIALOG MODAL (ANTI-ALERT/CONFIRM BAN) ==================== -->
   <div id="confirmModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/85 backdrop-blur-sm px-4">
     <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-2xl max-w-sm w-full border border-slate-200 dark:border-slate-700 text-center space-y-4">
       <div class="w-12 h-12 bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 rounded-full flex items-center justify-center mx-auto text-xl">
@@ -811,23 +833,226 @@
       initClock();
       loadThemeFromLocalStorage();
 
-      // Cek Status Autentikasi Sesi Saat Ini
-      const savedUser = sessionStorage.getItem('CG_User');
-      const savedRole = sessionStorage.getItem('CG_Role');
+      // Cek apakah halaman dibuka oleh Pelanggan yang membawa parameter nota
+      const urlParams = new URLSearchParams(window.location.search);
+      const receiptId = urlParams.get('viewReceipt');
 
-      if (savedUser && savedRole) {
-        appState.currentUser = savedUser;
-        appState.currentUserRole = savedRole;
-        appState.isAdminAuthorized = (savedRole === 'Admin');
-        
-        applyRoleUI();
-        showApp();
-        loadApplicationData();
+      if (receiptId) {
+        // Alihkan total ke layar struk digital mandiri (Sembunyikan Login Gate & Panel Kasir)
+        document.getElementById('loginGate').classList.add('hidden');
+        document.getElementById('appContainer').classList.add('hidden');
+        document.getElementById('customerReceiptView').classList.remove('hidden');
+        loadCustomerReceipt(receiptId);
       } else {
-        showLoginGate();
-        preloadConfigAndCashiers();
+        // Cek Status Autentikasi Sesi Kasir Saat Ini
+        const savedUser = sessionStorage.getItem('CG_User');
+        const savedRole = sessionStorage.getItem('CG_Role');
+
+        if (savedUser && savedRole) {
+          appState.currentUser = savedUser;
+          appState.currentUserRole = savedRole;
+          appState.isAdminAuthorized = (savedRole === 'Admin');
+          
+          applyRoleUI();
+          showApp();
+          loadApplicationData();
+        } else {
+          showLoginGate();
+          preloadConfigAndCashiers();
+        }
       }
     };
+
+    function loadCustomerReceipt(receiptId) {
+      callBackend('getInitialData', null, function(response) {
+        const config = response.config || appState.config;
+        const transaksi = response.transaksi || [];
+        
+        const item = transaksi.find(t => String(t.ID_Transaksi) === String(receiptId));
+        const loader = document.getElementById('receiptLoader');
+        const cardContent = document.getElementById('receiptContent');
+
+        if (!item) {
+          loader.innerHTML = `
+            <div class="text-rose-500 text-5xl mb-4"><i class="fas fa-times-circle"></i></div>
+            <h3 class="text-lg font-bold text-slate-800 dark:text-white">Struk Tidak Ditemukan</h3>
+            <p class="text-xs text-slate-400 mt-1">Maaf, struk dengan nomor nota #${receiptId} tidak terdaftar atau sudah diarsipkan oleh toko.</p>
+          `;
+          return;
+        }
+
+        const sisa = Number(item.Total_Harga) - Number(item.DP_Bayar);
+        const logoHtml = config.Logo_Base64 
+          ? `<img src="${config.Logo_Base64}" class="w-16 h-16 rounded-2xl object-cover mx-auto border border-slate-100 dark:border-slate-700 mb-2">` 
+          : `<div class="text-5xl mb-2">✨</div>`;
+
+        loader.classList.add('hidden');
+        cardContent.classList.remove('hidden');
+
+        cardContent.innerHTML = `
+          <div class="text-center">
+            ${logoHtml}
+            <h1 class="text-xl font-black text-brand-600 dark:text-brand-400 tracking-tight uppercase">${config.Nama_Laundry}</h1>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">${config.Alamat}</p>
+            <p class="text-xs text-slate-400 dark:text-slate-500">Telp: +${config.Telepon}</p>
+          </div>
+
+          <div class="border-t border-dashed border-slate-200 dark:border-slate-700 my-4"></div>
+
+          <table class="w-full text-xs text-slate-600 dark:text-slate-300">
+            <tr>
+              <td class="py-1 font-bold">No. Nota:</td>
+              <td class="py-1 text-right font-mono font-black text-slate-800 dark:text-white">#${item.ID_Transaksi}</td>
+            </tr>
+            <tr>
+              <td class="py-1 font-bold">Tanggal Masuk:</td>
+              <td class="py-1 text-right">${formatDateTime(item.Tanggal_Masuk)}</td>
+            </tr>
+            <tr>
+              <td class="py-1 font-bold">Pelanggan:</td>
+              <td class="py-1 text-right font-semibold">${item.Nama_Pelanggan}</td>
+            </tr>
+          </table>
+
+          <div class="border-t border-dashed border-slate-200 dark:border-slate-700 my-4"></div>
+
+          <table class="w-full text-xs text-slate-800 dark:text-slate-200">
+            <thead>
+              <tr class="border-b border-slate-100 dark:border-slate-700 text-slate-400 uppercase tracking-wider text-[10px] font-bold">
+                <th class="text-left pb-2">Layanan / Paket</th>
+                <th class="text-center pb-2">Qty</th>
+                <th class="text-right pb-2">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="font-bold">
+                <td class="py-3">${item.Layanan}</td>
+                <td class="text-center py-3">${item.Berat_Unit || item['Berat_Unit'] || 0} Kg</td>
+                <td class="text-right py-3">Rp ${Number(item.Total_Harga).toLocaleString()}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="border-t border-dashed border-slate-200 dark:border-slate-700 my-4"></div>
+
+          <table class="w-full text-xs space-y-2">
+            <tr>
+              <td class="text-slate-500">Subtotal Jasa:</td>
+              <td class="text-right font-bold text-slate-800 dark:text-white">Rp ${Number(item.Total_Harga).toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td class="text-slate-500">Sudah Dibayar (DP):</td>
+              <td class="text-right font-bold text-brand-500">Rp ${Number(item.DP_Bayar).toLocaleString()}</td>
+            </tr>
+            <tr class="text-sm font-black">
+              <td class="pt-2 text-slate-800 dark:text-white border-t border-slate-100 dark:border-slate-700">Sisa Pembayaran:</td>
+              <td class="pt-2 text-right border-t border-slate-100 dark:border-slate-700" style="color: ${sisa > 0 ? '#b91c1c' : '#047857'}">Rp ${sisa.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td class="pt-3 text-slate-500">Status Pembayaran:</td>
+              <td class="pt-3 text-right">
+                <span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${item.Status_Bayar === 'Lunas' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/45 dark:text-emerald-400' : (item.Status_Bayar === 'DP (Uang Muka)' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/45 dark:text-blue-400' : 'bg-red-100 text-red-800 dark:bg-red-950/45 dark:text-red-400')}">${item.Status_Bayar}</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="pt-1 text-slate-500">Status Pengerjaan:</td>
+              <td class="pt-1 text-right font-bold text-slate-800 dark:text-white">${item.Status_Proses}</td>
+            </tr>
+          </table>
+
+          <div class="border-t border-dashed border-slate-200 dark:border-slate-700 my-4"></div>
+
+          <div class="text-[10px] text-slate-400 text-center leading-relaxed">
+            <p><strong>Catatan Khusus:</strong> ${item.Catatan || '-'}</p>
+            <p class="mt-3">Harap simpan struk digital ini untuk validasi pengambilan pakaian Anda di toko laundry kami.</p>
+            <p class="mt-2 font-black tracking-widest text-brand-600 dark:text-brand-400 uppercase">✨ TERIMA KASIH ATAS KUNJUNGAN ANDA ✨</p>
+          </div>
+
+          <!-- Button Actions -->
+          <div class="flex gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 no-print">
+            <button onclick="window.print()" class="flex-1 py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md">
+              <i class="fas fa-print"></i> Cetak / Simpan PDF
+            </button>
+            <a href="https://wa.me/${config.Telepon}" target="_blank" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all text-center">
+              <i class="fab fa-whatsapp"></i> Hubungi Toko
+            </a>
+          </div>
+        `;
+
+        // Render hidden thermal receipt div for printing trigger
+        const receiptDiv = document.getElementById('thermalReceipt');
+        receiptDiv.innerHTML = `
+          ${logoHtml}
+          <div style="text-align: center; border-bottom: 1px dashed black; padding-bottom: 8px; margin-bottom: 8px;">
+            <h2 style="margin: 0; font-size: 13px; font-weight: bold;">${config.Nama_Laundry.toUpperCase()}</h2>
+            <p style="margin: 2px 0 0 0; font-size: 8px; line-height: 1.2;">${config.Alamat}</p>
+            <p style="margin: 2px 0 0 0; font-size: 8px;">Telp: +${config.Telepon}</p>
+          </div>
+          
+          <table style="width: 100%; font-size: 8px; margin-bottom: 6px; line-height: 1.3;">
+            <tr>
+              <td>Nota: #${item.ID_Transaksi}</td>
+              <td style="text-align: right;">${formatDateTime(item.Tanggal_Masuk)}</td>
+            </tr>
+            <tr>
+              <td colspan="2">Pelanggan: ${item.Nama_Pelanggan}</td>
+            </tr>
+            <tr>
+              <td colspan="2">No HP: +${item.No_WhatsApp}</td>
+            </tr>
+          </table>
+
+          <div style="border-bottom: 1px dashed black; margin-bottom: 6px;"></div>
+
+          <table style="width: 100%; font-size: 8px; margin-bottom: 8px; line-height: 1.3;">
+            <tr style="font-weight: bold;">
+              <td>Item/Paket</td>
+              <td style="text-align: center;">Qty</td>
+              <td style="text-align: right;">Total</td>
+            </tr>
+            <tr>
+              <td>${item.Layanan}</td>
+              <td style="text-align: center;">${item.Berat_Unit || item['Berat_Unit'] || 0} Kg</td>
+              <td style="text-align: right;">Rp ${Number(item.Total_Harga).toLocaleString()}</td>
+            </tr>
+          </table>
+
+          <div style="border-bottom: 1px dashed black; margin-bottom: 6px;"></div>
+
+          <table style="width: 100%; font-size: 8px; margin-bottom: 10px; line-height: 1.3;">
+            <tr>
+              <td style="font-weight: bold;">Total Biaya:</td>
+              <td style="text-align: right; font-weight: bold;">Rp ${Number(item.Total_Harga).toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td>Jumlah Bayar (DP):</td>
+              <td style="text-align: right;">Rp ${Number(item.DP_Bayar).toLocaleString()}</td>
+            </tr>
+            <tr style="font-weight: bold;">
+              <td>Sisa Bayar:</td>
+              <td style="text-align: right; color: ${sisa > 0 ? 'red' : 'green'}">Rp ${sisa.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td>Status:</td>
+              <td style="text-align: right; font-weight: bold;">${item.Status_Bayar}</td>
+            </tr>
+          </table>
+
+          <div style="border-top: 1px dashed black; padding-top: 6px; text-align: center; font-size: 7px; line-height: 1.3;">
+            <p style="margin: 0;">Catatan: ${item.Catatan || '-'}</p>
+            <p style="margin: 4px 0 0 0; font-weight: bold;">Harap bawa struk ini saat pengambilan.</p>
+            <p style="margin: 2px 0 0 0;">Barang yang tidak diambil dalam 30 hari di luar tanggung jawab kami.</p>
+            <p style="margin: 8px 0 0 0; font-size: 9px; letter-spacing: 2px; font-weight: bold;">* TERIMA KASIH *</p>
+          </div>
+        `;
+      }, function(err) {
+        document.getElementById('receiptLoader').innerHTML = `
+          <div class="text-rose-500 text-5xl mb-4"><i class="fas fa-exclamation-triangle"></i></div>
+          <h3 class="text-lg font-bold text-slate-800 dark:text-white">Koneksi Bermasalah</h3>
+          <p class="text-xs text-slate-400 mt-1">Gagal mengambil data struk digital dari database cloud.</p>
+        `;
+      });
+    }
 
     function switchTab(tabId) {
       if (tabId === 'pengaturan' && appState.currentUserRole !== 'Admin') {
@@ -867,7 +1092,6 @@
       switchTab('dashboard');
     }
 
-    // MEMUAT CONFIG & DAFTAR AKUN SEBELUM PROSES LOGIN
     function preloadConfigAndCashiers() {
       callBackend('getInitialData', null, function(response) {
         if (response.config) appState.config = response.config;
@@ -1103,11 +1327,12 @@
         appState.shiftLogs = shiftLogs;
         onSuccess({ status: 'success', message: 'Log shift tersimpan lokal' });
       } else if (action === 'saveKasir') {
-        const existingIdx = cashiers.findIndex(k => k.Username === data.Username);
+        const searchName = data.OldUsername || data.Username;
+        const existingIdx = cashiers.findIndex(k => k.Username === searchName);
         if (existingIdx > -1) {
-          cashiers[existingIdx] = data;
+          cashiers[existingIdx] = { Username: data.Username, PIN: data.PIN };
         } else {
-          cashiers.push(data);
+          cashiers.push({ Username: data.Username, PIN: data.PIN });
         }
         localStorage.setItem('CG_Kasir_2026', JSON.stringify(cashiers));
         appState.kasir = cashiers;
@@ -1345,6 +1570,7 @@
 
     function renderLayananRows() {
       const container = document.getElementById('layananFormContainer');
+      if (!container) return;
       container.innerHTML = '';
 
       appState.layanan.forEach((item, index) => {
@@ -1534,7 +1760,6 @@
       });
     }
 
-    // CUSTOM CONFIRMATION POP-UP HELPER (MEMENUHI BATASAN ANTI BROWSER DIALOG)
     function showCustomConfirm(title, message, onConfirm) {
       document.getElementById('confirmTitle').innerText = title;
       document.getElementById('confirmMessage').innerText = message;
@@ -1579,6 +1804,7 @@
 
     function renderTransaksiTable() {
       const tbody = document.getElementById('transaksiTableBody');
+      if (!tbody) return;
       tbody.innerHTML = '';
 
       let filteredData = appState.transaksi;
@@ -1749,33 +1975,71 @@
       });
     }
 
-    // MANAJEMEN AKUN KASIR DI PANEL ADMIN
     function handleAddCashier(e) {
       e.preventDefault();
       const usernameInput = document.getElementById('new-cashier-name');
       const pinInput = document.getElementById('new-cashier-pin');
+      const oldNameInput = document.getElementById('edit-cashier-old-name');
       
       const username = usernameInput.value.trim();
       const pin = pinInput.value.trim();
+      const oldUsername = oldNameInput.value.trim();
 
       if (pin.length < 4) {
         showToast("PIN minimal harus berisi 4 digit!", "error");
         return;
       }
 
-      const data = { Username: username, PIN: pin };
+      const data = { 
+        Username: username, 
+        PIN: pin,
+        OldUsername: oldUsername || undefined
+      };
+      
       showToast("Menyimpan akun kasir...", "info");
 
       callBackend('saveKasir', data, function(response) {
-        showToast("Akun kasir berhasil disimpan!", "success");
-        usernameInput.value = '';
-        pinInput.value = '';
+        showToast(oldUsername ? "Akun kasir berhasil diperbarui!" : "Akun kasir berhasil disimpan!", "success");
+        cancelCashierEdit();
         loadApplicationData();
       }, function(err) {
         updateDbStatusBadge(false, "Simpan kasir gagal: " + err);
         showToast("Akun kasir disimpan secara lokal.", "info");
+        cancelCashierEdit();
         loadApplicationData();
       });
+    }
+
+    function editCashier(username, pin) {
+      const usernameInput = document.getElementById('new-cashier-name');
+      const pinInput = document.getElementById('new-cashier-pin');
+      const oldNameInput = document.getElementById('edit-cashier-old-name');
+      const submitText = document.getElementById('cashier-submit-text');
+      const cancelBtn = document.getElementById('cancel-cashier-edit-btn');
+
+      oldNameInput.value = username;
+      usernameInput.value = username;
+      pinInput.value = pin;
+
+      submitText.innerText = "Perbarui Akun Kasir";
+      cancelBtn.classList.remove('hidden');
+      
+      usernameInput.focus();
+    }
+
+    function cancelCashierEdit() {
+      const usernameInput = document.getElementById('new-cashier-name');
+      const pinInput = document.getElementById('new-cashier-pin');
+      const oldNameInput = document.getElementById('edit-cashier-old-name');
+      const submitText = document.getElementById('cashier-submit-text');
+      const cancelBtn = document.getElementById('cancel-cashier-edit-btn');
+
+      oldNameInput.value = "";
+      usernameInput.value = "";
+      pinInput.value = "";
+
+      submitText.innerText = "Tambah Akun Kasir";
+      cancelBtn.classList.add('hidden');
     }
 
     function deleteCashier(username) {
@@ -1817,9 +2081,14 @@
           <td class="p-3 font-bold text-sm">${k.Username}</td>
           <td class="p-3 font-mono">•••••• <span class="text-xs text-slate-400">(${k.PIN})</span></td>
           <td class="p-3 text-center">
-            <button onclick="deleteCashier('${k.Username}')" class="p-2 bg-red-100 hover:bg-red-500 hover:text-white rounded-lg text-red-600 dark:bg-red-950/50 dark:text-red-400 dark:hover:bg-red-500 transition-all" title="Hapus Akun">
-              <i class="fas fa-trash-alt"></i>
-            </button>
+            <div class="flex items-center justify-center gap-1.5">
+              <button onclick="editCashier('${k.Username}', '${k.PIN}')" class="p-2 bg-indigo-100 hover:bg-indigo-500 hover:text-white rounded-lg text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 dark:hover:bg-indigo-500 transition-all bg-indigo-50" title="Edit Akun Kasir">
+                <i class="fas fa-edit text-xs"></i>
+              </button>
+              <button onclick="deleteCashier('${k.Username}')" class="p-2 bg-red-100 hover:bg-red-500 hover:text-white rounded-lg text-red-600 dark:bg-red-950/50 dark:text-red-400 dark:hover:bg-red-500 transition-all" title="Hapus Akun">
+                <i class="fas fa-trash-alt text-xs"></i>
+              </button>
+            </div>
           </td>
         `;
         tbody.appendChild(tr);
@@ -1834,7 +2103,9 @@
       const sisaBayar = Number(item.Total_Harga) - Number(item.DP_Bayar);
       let payStatusStr = item.Status_Bayar === 'Lunas' ? "LUNAS (Terima Kasih)" : `BELUM LUNAS (Sisa Bayar: Rp ${sisaBayar.toLocaleString()})`;
 
-      const digitalReceiptUrl = `${GAS_URL}?action=viewReceipt&id=${item.ID_Transaksi}`;
+      // SINKRONISASI LINK VERCEL MANDIRI (Bukan GAS Link!)
+      const baseUrl = window.location.origin + window.location.pathname;
+      const digitalReceiptUrl = `${baseUrl}?viewReceipt=${item.ID_Transaksi}`;
 
       let textMessage = `*NOTA LAUNDRY - ${shopName.toUpperCase()}*\n\n` +
                         `Yth. Kak *${item.Nama_Pelanggan}*,\n` +
